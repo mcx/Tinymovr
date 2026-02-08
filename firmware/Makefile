@@ -167,23 +167,23 @@ print_board_info:
 # -----------------------------------------------
 # ST-Link / PyOCD Flash Targets
 # Requires: pip install pyocd
-# Uses the custom PAC55XX pack in pyocd_pac55xx/
+# Uses the PAC55xx device pack (PyOCD + J-Link) in pac55xx_device_pack/
 # -----------------------------------------------
 
 # Flash firmware using ST-Link via PyOCD
 .PHONY: flash-stlink
 flash-stlink: $(BIN)
 	@echo "Flashing $(BIN) via ST-Link (PyOCD)..."
-	pyocd flash -t pac5527 --pack pyocd_pac55xx/ $(BIN)
+	pyocd flash -t pac5527 --pack pac55xx_device_pack/ $(BIN)
 
 # Erase chip using ST-Link via PyOCD
 .PHONY: erase-stlink
 erase-stlink:
 	@echo "Erasing chip via ST-Link (PyOCD)..."
-	pyocd erase -t pac5527 --pack pyocd_pac55xx/ --chip
+	pyocd erase -t pac5527 --pack pac55xx_device_pack/ --chip
 
 # Reset target using ST-Link via PyOCD
 .PHONY: reset-stlink
 reset-stlink:
 	@echo "Resetting target via ST-Link (PyOCD)..."
-	pyocd reset -t pac5527 --pack pyocd_pac55xx/
+	pyocd reset -t pac5527 --pack pac55xx_device_pack/

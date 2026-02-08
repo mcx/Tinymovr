@@ -42,7 +42,7 @@ Connection with SWD adapter (e.g. isolator) for R5:
 
 (diagrams made with `Wireviz <https://github.com/formatc1702/WireViz>`_)
 
-As of Tinymovr 1.0.1, it is no longer necessary to patch the ``JLinkDevices.xml`` file with the PAC additions, in order for JLinkGDBServer to work properly. Relevant files are included in the repo.
+As of Tinymovr 1.0.1, it is no longer necessary to patch the ``JLinkDevices.xml`` file (in ``firmware/pac55xx_device_pack/``) with the PAC additions, in order for JLinkGDBServer to work properly. Relevant files are included in the repo.
 
 
 .. _develop-preparation:
@@ -264,8 +264,8 @@ Or use PyOCD directly:
 
 .. code-block:: console
 
-    pyocd flash -t pac5527 --pack firmware/pyocd_pac55xx/ firmware/build/tinymovr_fw.bin
-    pyocd gdbserver -t pac5527 --pack firmware/pyocd_pac55xx/
+    pyocd flash -t pac5527 --pack firmware/pac55xx_device_pack/ firmware/build/tinymovr_fw.bin
+    pyocd gdbserver -t pac5527 --pack firmware/pac55xx_device_pack/
 
 Limitations
 -----------

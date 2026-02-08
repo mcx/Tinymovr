@@ -296,7 +296,7 @@ The PAC5527 supports ARM Serial Wire Debug (SWD) for programming and debugging:
 - **Breakpoints**: 6 hardware breakpoints, unlimited software breakpoints
 - **Watchpoints**: 4 hardware data watchpoints
 
-**J-Link Configuration**: [firmware/JLinkDevices.xml](firmware/JLinkDevices.xml)
+**J-Link Configuration**: [firmware/pac55xx_device_pack/JLinkDevices.xml](firmware/pac55xx_device_pack/JLinkDevices.xml)
 
 ### SEGGER RTT (Real-Time Transfer)
 The firmware includes optional RTT support for printf-style debugging:
