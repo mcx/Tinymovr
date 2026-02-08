@@ -66,7 +66,7 @@ Tinymovr consists of **two separate projects**:
 | **adc** | Sensing | Current measurement, ADC trigger |
 | **gatedriver** | Actuation | PWM generation, Space Vector Modulation |
 | **can** | Comm | CAN bus interface, Avlos endpoint dispatch |
-| **uart** | Comm | UART interface (alternative to CAN) |
+| **uart** | Comm | UART interface (same Avlos endpoints as CAN, ASCII by endpoint ID) |
 | **ssp** | I/O | SPI for external encoders |
 | **nvm** | Storage | Configuration persistence to flash |
 | **scheduler** | Timing | Interrupt sync, CPU load monitoring |
