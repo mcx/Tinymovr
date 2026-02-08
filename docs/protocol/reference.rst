@@ -1,8 +1,9 @@
-
 .. _api-reference:
 
 API REFERENCE
 =============
+
+The :ref:`api-reference` section below lists all endpoints.
 
 
 
