@@ -142,6 +142,24 @@
             "dependsOrder": "sequence"
         },
         {
+            "type": "shell",
+            "label": "ST-Link: Erase Chip",
+            "command": "make erase-stlink",
+            "options": {
+                "cwd": "${workspaceFolder}/firmware"
+            },
+            "problemMatcher": []
+        },
+        {
+            "type": "shell",
+            "label": "J-Link: Erase Chip",
+            "command": "make erase-jlink",
+            "options": {
+                "cwd": "${workspaceFolder}/firmware"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Stop PyOCD Server",
             "type": "shell",
             "command": "pkill -f 'pyocd gdbserver' || true",

@@ -174,16 +174,22 @@ print_board_info:
 .PHONY: flash-stlink
 flash-stlink: $(BIN)
 	@echo "Flashing $(BIN) via ST-Link (PyOCD)..."
-	pyocd flash -t pac5527 --pack pac55xx_device_pack/ $(BIN)
+	scripts/pyocd_run.sh flash -t pac5527 --pack pac55xx_device_pack/ $(BIN)
 
 # Erase chip using ST-Link via PyOCD
 .PHONY: erase-stlink
 erase-stlink:
 	@echo "Erasing chip via ST-Link (PyOCD)..."
-	pyocd erase -t pac5527 --pack pac55xx_device_pack/ --chip
+	scripts/pyocd_run.sh erase -t pac5527 --pack pac55xx_device_pack/ --chip
 
 # Reset target using ST-Link via PyOCD
 .PHONY: reset-stlink
 reset-stlink:
 	@echo "Resetting target via ST-Link (PyOCD)..."
-	pyocd reset -t pac5527 --pack pac55xx_device_pack/
+	scripts/pyocd_run.sh reset -t pac5527 --pack pac55xx_device_pack/
+
+# Erase chip using J-Link
+.PHONY: erase-jlink
+erase-jlink:
+	@echo "Erasing chip via J-Link..."
+	echo -e "erase\nexit" | JLinkExe -device PAC55XX -if SWD -speed 4000 -JLinkDevicesXMLPath pac55xx_device_pack/ -autoconnect 1

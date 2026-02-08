@@ -223,10 +223,13 @@ Install PyOCD:
 
     pip install pyocd
 
-PyOCD can be installed globally or in a virtual environment. The VSCode tasks will automatically discover PyOCD in the following locations (in order of priority):
+PyOCD can be installed globally or in a virtual environment. The VSCode tasks and Makefile targets use the ``firmware/scripts/pyocd_run.sh`` wrapper script, which automatically discovers PyOCD in the following locations (in order of priority):
 
 1. System PATH (global install)
 2. Project virtual environment at ``<workspace>/venv/``
+
+.. note::
+   The ``pyocd_run.sh`` script is necessary because Makefile commands spawn a new shell without access to any activated virtual environment. The script ensures PyOCD is found regardless of how it was installed.
 
 The ST-Link hardware connects to Tinymovr using the same SWD pinout as J-Link (GND, SWDIO, SWCLK, VTref). See the connection diagrams above.
 
