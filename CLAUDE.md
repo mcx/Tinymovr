@@ -138,6 +138,7 @@ Use this decision tree to find the right documentation:
 4. **Missing TM_RAMFUNC**: Control loop functions must be marked `TM_RAMFUNC`
 5. **Calibration Timing**: Do not reduce `CAL_R_LEN` or `CAL_L_LEN` (see [SAFETY.md](SAFETY.md))
 6. **Blocking in Control Loop**: Never call `printf()`, `delay()`, or `malloc()` from control loop
+7. **PyOCD Not Found in Makefile**: ST-Link targets must use `scripts/pyocd_run.sh` wrapper because Makefile spawns a new shell without venv activation
 
 **Details**: [SAFETY.md § Common Pitfalls](SAFETY.md#common-pitfalls)
 

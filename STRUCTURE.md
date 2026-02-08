@@ -31,13 +31,26 @@ Tinymovr/
 firmware/
 ├── src/                   # Source code (17 modules)
 ├── pac55xx_sdk/          # Qorvo PAC55xx SDK (not in repo)
+├── pac55xx_device_pack/  # CMSIS Device Family Pack for PyOCD/J-Link
 ├── bootloader/           # CAN/DFU bootloader source
 ├── build/                # Build artifacts (.elf, .bin, .map)
 ├── release_binaries/     # Pre-built release binaries
+├── scripts/              # Utility scripts for flashing/debugging
+│   ├── pyocd_run.sh      # PyOCD wrapper (discovers venv or PATH)
+│   └── pyocd_run.bat     # Windows version
 ├── Makefile              # Build system
 ├── pac55xx.ld            # Linker script (memory layout)
 └── sdk_patch.patch       # SDK modifications
 ```
+
+### Scripts Directory
+
+The ``firmware/scripts/`` directory contains utility scripts for flashing and debugging:
+
+| Script | Purpose |
+|--------|---------|
+| `pyocd_run.sh` | Wrapper script that finds PyOCD in PATH or project venv. **Required** because Makefile commands spawn a new shell without access to any activated virtual environment. |
+| `pyocd_run.bat` | Windows equivalent of pyocd_run.sh |
 
 ### Source Modules
 
