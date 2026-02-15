@@ -42,7 +42,7 @@ from PySide6.QtGui import QAction
 import pyqtgraph as pg
 from tinymovr.constants import app_name
 from tinymovr.channel import ResponseError as ChannelResponseError
-from tinymovr.config import get_bus_config
+from tinymovr.config import get_bus_config, export_config, import_config
 from avlos import get_registry
 from avlos.datatypes import DataType
 from avlos.json_codec import AvlosEncoder
@@ -463,7 +463,7 @@ class MainWindow(QMainWindow):
             return
         if root_node is None:
             return  # user cancelled device picker
-        values_object = root_node.export_values()
+        values_object = export_config(root_node)
         json_data = json.dumps(values_object, cls=AvlosEncoder)
         file_path = display_file_save_dialog()
         with suppress(FileNotFoundError), open(file_path, "w") as file:
@@ -479,7 +479,7 @@ class MainWindow(QMainWindow):
         file_path = display_file_open_dialog()
         with suppress(FileNotFoundError), open(file_path, "r") as file:
             values_object = json.load(file)
-            root_node.import_values(values_object)
+            import_config(root_node, values_object)
             time.sleep(0.1)
             self.worker.force_regen()
 
