@@ -148,6 +148,51 @@ The board will be discovered with the new ID. Relaunch Studio CLI to remove the 
 
 4. Power down or reset the board. Tinymovr is now ready to use with the new ID.
 
+.. _export-import-config:
+
+Exporting & Importing Configuration
+####################################
+
+Tinymovr Studio allows you to export the current device configuration to a JSON file and import it back later. This is useful for backing up tuning parameters, replicating a setup across multiple boards, or restoring configuration after a firmware update.
+
+The exported file includes controller gains, trajectory planner limits, sensor settings, motor parameters, homing configuration, and other settable attributes. Note that CAN bus parameters (ID and baud rate) are intentionally excluded from export, as importing mismatched values could disrupt communication.
+
+.. note::
+   Export/import transfers configuration values over CAN but does **not** persist them to flash. After importing, call ``save_config()`` if you want the values to survive a power cycle.
+
+
+|gui|
+
+Use the **File** menu:
+
+- **File > Export Config...** -- Exports the device configuration to a JSON file. If multiple devices are connected, a picker dialog lets you choose which one.
+- **File > Import Config...** -- Imports a JSON configuration file into the device.
+
+
+|cli|
+
+In the CLI, use ``export_config()`` and ``import_config()`` from the ``tinymovr.config`` module:
+
+.. code-block:: python
+
+    import json
+    from avlos.json_codec import AvlosEncoder
+    from tinymovr.config import export_config, import_config
+
+    # Export to a JSON file
+    config = export_config(tm1)
+    with open("my_config.json", "w") as f:
+        json.dump(config, f, cls=AvlosEncoder)
+
+    # Import from a JSON file
+    with open("my_config.json", "r") as f:
+        config = json.load(f)
+    import_config(tm1, config)
+
+    # Optionally persist to flash
+    tm1.save_config()
+
+
 .. _command-line-options:
 
 Command-line options
