@@ -148,6 +148,44 @@ The board will be discovered with the new ID. Relaunch Studio CLI to remove the 
 
 4. Power down or reset the board. Tinymovr is now ready to use with the new ID.
 
+
+.. _can-id-persistence:
+
+CAN Node ID Persistence
+########################
+
+When you call ``save_config()``, the CAN node ID is stored redundantly in a dedicated metadata header in flash, separate from the main configuration payload. This metadata has its own integrity check (magic marker and checksum), which makes it verifiable independently of the rest of the configuration.
+
+This design ensures that **the CAN node ID survives firmware updates**. When new firmware is flashed, the main configuration is invalidated (because the firmware version changes), but the metadata header remains intact. On the next boot, the device reads the node ID from the metadata before checking the firmware version, so it keeps its assigned bus address.
+
+The diagram below shows how the boot process handles this:
+
+.. mermaid::
+
+   flowchart TD
+       A["nvm_load_config()"] --> B["Scan flash slots, find latest"]
+       B --> C{"Valid metadata?"}
+       C -- No --> D["Return false, ID stays default 1"]
+       C -- Yes --> E{"node_id copies match and >= 1?"}
+       E -- Yes --> F["Restore CAN ID from metadata"]
+       E -- No --> G["Skip ID restore"]
+       F --> H["Read config payload, validate checksum"]
+       G --> H
+       H --> I{"Firmware version matches?"}
+       I -- Yes --> J["Restore full config, return true"]
+       I -- No --> K["Return false -- but CAN ID is already set"]
+
+In practice, this means:
+
+- **Normal boot** -- Full configuration is restored, including the CAN ID.
+- **After a firmware update** -- The metadata is still valid, so the CAN ID is restored. The full configuration fails the version check, so other parameters revert to defaults, but the device remains addressable on the bus.
+- **Corrupted flash** -- Metadata validation fails and the device falls back to the default ID (1).
+- **Fresh device** -- No saved configuration exists; the default ID (1) is used.
+
+.. note::
+   After a firmware update you will need to re-calibrate and restore your configuration (or import from a previously exported JSON file), but you do **not** need to reassign the CAN node ID. See :ref:`can-id-preservation` for more details.
+
+
 .. _export-import-config:
 
 Exporting & Importing Configuration

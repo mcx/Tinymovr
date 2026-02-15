@@ -183,6 +183,14 @@ bool nvm_load_config(void)
         return false;
     }
 
+    // Restore CAN ID from validated metadata, regardless of config version.
+    // This ensures the device keeps its bus address even after firmware updates
+    // that invalidate the full config due to version mismatch.
+    if (metadata->node_id_1 == metadata->node_id_2 && metadata->node_id_1 >= 1)
+    {
+        CAN_restore_id(metadata->node_id_1);
+    }
+
     // Read config (skip metadata header)
     const struct NVMStruct *stored_config =
         (const struct NVMStruct *)(slot_addr + NVM_METADATA_SIZE);
