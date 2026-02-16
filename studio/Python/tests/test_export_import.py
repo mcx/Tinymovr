@@ -212,6 +212,30 @@ class TestExportImportRoundTrip(TMTestCase):
         self.assertIn("controller", exported)
         self.assertIn("traj_planner", exported)
 
+        # --- Verify current controller attributes are exported if device supports them ---
+        if "controller.current.Iq_limit" in test_values:
+            self.assertIn("current", exported["controller"],
+                          "controller.current section missing from export")
+            self.assertIn("Iq_limit", exported["controller"]["current"],
+                          "Iq_limit missing from exported JSON")
+            # Compare as Quantity (exported value is a pint.Quantity before JSON encoding)
+            self.assertAlmostEqual(
+                exported["controller"]["current"]["Iq_limit"],
+                test_values["controller.current.Iq_limit"] * A,
+                msg="Iq_limit value mismatch in exported JSON"
+            )
+        if "controller.current.max_Ibus_regen" in test_values:
+            self.assertIn("current", exported["controller"],
+                          "controller.current section missing from export")
+            self.assertIn("max_Ibus_regen", exported["controller"]["current"],
+                          "max_Ibus_regen missing from exported JSON")
+            # Compare as Quantity (exported value is a pint.Quantity before JSON encoding)
+            self.assertAlmostEqual(
+                exported["controller"]["current"]["max_Ibus_regen"],
+                test_values["controller.current.max_Ibus_regen"] * A,
+                msg="max_Ibus_regen value mismatch in exported JSON"
+            )
+
         # --- Reset to defaults ---
         self.tm.controller.idle()
         time.sleep(0.1)

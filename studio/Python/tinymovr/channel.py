@@ -45,7 +45,7 @@ class CANChannel(BaseChannel):
     # Temporarily raised via throttled() context manager during bulk
     # operations (e.g. import_values) to prevent overwhelming the
     # device receive buffer.
-    BULK_SEND_DELAY = 0.002  # 2 ms
+    BULK_SEND_DELAY = 0.003  # 3 ms
 
     def __init__(self, node_id, compare_hash = 0):
         self.node_id = node_id
