@@ -228,6 +228,8 @@ This means:
 - **Corrupted NVM**: Metadata validation fails, function returns early. Device uses default ID 1 (safe fallback).
 - **Fresh device**: No valid slots found, default ID 1 is used.
 
+**Bootloader caveat**: The bootloader reads the CAN ID from the fixed address `0x0001E000` (start of slot 0), not the wear-leveled latest slot. If the application has written newer configs to higher slots, the bootloader's CAN ID may differ from the application's. This means `--node_id` for `tinymovr_dfu` must match the bootloader's ID, not necessarily the application's.
+
 #### Saving and Wear Leveling
 
 On save, `nvm_save_config()`:
@@ -237,6 +239,16 @@ On save, `nvm_save_config()`:
 4. Verifies the write via readback
 
 The slot with the highest sequence number is always the most recent valid config. `nvm_wl_scan_slots()` reconstructs this state on boot.
+
+#### DFU and NVM Preservation
+
+The DFU bootloader's `erase_all` command wipes pages 4-127, which includes the NVM config region (pages 120-127). To prevent config loss during firmware updates, [studio/Python/tinymovr/dfu.py](studio/Python/tinymovr/dfu.py) performs:
+
+- **Before erase**: Reads the entire 8 KB NVM region via `read_flash_32`
+- **After firmware write**: Writes the NVM data back via scratchpad + `commit`, skipping erased (all-0xFF) chunks
+- **Before reset**: NVM is fully restored, so the device boots with its original config
+
+This ensures the CAN node ID and all other settings survive firmware updates without the device ever appearing at default ID 1 on the bus.
 
 ### Board Revision Support
 
