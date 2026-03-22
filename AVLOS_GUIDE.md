@@ -734,6 +734,18 @@ class TestProtocolHash(unittest.TestCase):
         self.assertEqual(spec1, spec2)
 ```
 
+## YAML Spec Immutability
+
+**CRITICAL RULE: NEVER modify existing YAML spec files.** Spec files are immutable once published. Any change to a YAML spec -- including adding `meta` flags, renaming fields, or changing descriptions -- alters the protocol hash, breaking compatibility with deployed firmware.
+
+**To make changes:**
+1. Copy the latest spec to a new version file (e.g., `tinymovr_2_4_x.yaml` -> `tinymovr_2_6_x.yaml`)
+2. Make all edits in the **new** file only
+3. Regenerate firmware endpoints from the new spec: `avlos from file <new_spec>.yaml`
+4. Update firmware build to reference the new spec version
+
+Existing specs must remain byte-for-byte identical to preserve protocol hash compatibility.
+
 ## Common Pitfalls
 
 ### 1. Forgetting to Regenerate Code

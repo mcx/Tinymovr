@@ -155,9 +155,10 @@ Use this decision tree to find the right documentation:
 
 ### Avlos Gotchas
 
-1. **Edited Generated Files**: Never edit `can_endpoints.c/h` or `tm_enums.h` directly
-2. **C Function Signature Mismatch**: YAML `dtype` must match C function return type
-3. **Forgot to Regenerate**: After YAML change, must run `avlos from file <spec_file>.yaml` (where `<spec_file>` is the appropriate protocol version like `tinymovr_2_3_x` or `tinymovr_2_4_x`)
+1. **NEVER modify existing YAML spec files.** Spec files are immutable once published. To make changes, create a **new** spec file (e.g., `tinymovr_2_6_x.yaml`) based on the previous version. Existing specs must remain byte-for-byte identical to preserve protocol hash compatibility with deployed firmware.
+2. **Edited Generated Files**: Never edit `can_endpoints.c/h` or `tm_enums.h` directly
+3. **C Function Signature Mismatch**: YAML `dtype` must match C function return type
+4. **Forgot to Regenerate**: After creating a new YAML spec, must run `avlos from file <spec_file>.yaml` to regenerate firmware endpoints
 
 **Details**: [AVLOS_GUIDE.md § Common Pitfalls](AVLOS_GUIDE.md#common-pitfalls)
 
