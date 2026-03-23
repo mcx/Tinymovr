@@ -4,6 +4,9 @@
 # --- Hardware datasheets (copyright restrictions)
 hardware/Datasheets/
 
+# --- Bench app (private repo)
+studio/Bench/
+
 # --- Sphinx documentation
 docs/_build/
 
