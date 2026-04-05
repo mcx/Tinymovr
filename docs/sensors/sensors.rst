@@ -302,8 +302,8 @@ Then select the `HALL` sensor for each of the position and commutation sensors, 
 
 .. code-block:: python
 
-    tm1.sensors.select.commutation_sensor.connection = HALL
-    tm1.sensors.select.position_sensor.connection = HALL
+    tm1.sensors.select.commutation_sensor.connection = tm1.sensors.select.commutation_sensor.connection.HALL
+    tm1.sensors.select.position_sensor.connection = tm1.sensors.select.position_sensor.connection.HALL
     tm1.sensors.select.commutation_sensor.bandwidth = 200
     tm1.sensors.select.position_sensor.bandwidth = 20
 
@@ -315,7 +315,7 @@ Next, you need to set the motor pole pairs:
 
     tm1.motor.pole_pairs = 15
     
-Next comes tuning of gains. Gains are determined on the tick count of a full mechanical turn of the motor. When using the an absolute sensor, the tick count is fixed to 8192 ticks (the resolution can be higher as the tick count is a floating point value). 
+Next comes tuning of gains. Gains are determined on the tick count of a full mechanical turn of the motor. When using an absolute sensor, the tick count is fixed to 8192 ticks (the resolution can be higher as the tick count is a floating point value). 
 
 When using the Hall effect sensor, the tick count is defined as 8192 ticks in an electrical cycle. Thus, your mechanical cycle tick count is variable, depending on the pole pair count of your motor.
 Because of this it is possible that the gains need to be updated. Below we present an example of values that work well with a 15 pp hoverboard motor:

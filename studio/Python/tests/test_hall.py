@@ -28,7 +28,7 @@ ureg = get_registry()
 A = ureg.ampere
 tick = ureg.ticks
 s = ureg.second
-tsleep = 1.00
+tsleep = 0.9
 
 
 def set_pole_pairs(tm):
@@ -56,8 +56,8 @@ class TestHall(TMTestCase):
 
         self.try_calibrate(precheck_callback=set_pole_pairs)
 
-        self.tm.controller.position.p_gain = 15
-        self.tm.controller.velocity.limit = 400000
+        self.tm.controller.position.p_gain = 11
+        self.tm.controller.velocity.limit = 700000
         self.tm.controller.velocity.p_gain = 1e-5
         self.tm.controller.velocity.i_gain = 0
 
