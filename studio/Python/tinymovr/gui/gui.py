@@ -25,7 +25,7 @@ from tinymovr.config import configure_logging, add_spec
 
 """
 Tinymovr Studio GUI
-Copyright Ioannis Chatzikonstantinou 2020-2023
+Copyright 2020-2026 MotionLayer P.C.
 
 The graphical user interface of Tinymovr Studio
 

@@ -30,7 +30,7 @@ from tinymovr.channel import ResponseError
 
 """
 Tinymovr DFU Module
-Copyright Ioannis Chatzikonstantinou 2020-2023
+Copyright 2020-2026 MotionLayer P.C.
 
 The Tinymovr Studio IPython-based command line interface
 

@@ -1,6 +1,6 @@
 """
 Tinymovr Setup Module
-Copyright Ioannis Chatzikonstantinou 2020-2023
+Copyright 2020-2026 MotionLayer P.C.
 
 Standard Python module for setting up the Tinymovr package
 
@@ -27,7 +27,7 @@ README = (HERE / "README.md").read_text()
 setup(
     name="tinymovr",
     # version="", #version will be taken from git tag
-    author="Yannis Chatzikonstantinou",
+    author="MotionLayer P.C.",
     author_email="info@tinymovr.com",
     description="Tinymovr Studio",
     long_description=README,

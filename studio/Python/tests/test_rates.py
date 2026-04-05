@@ -1,6 +1,6 @@
 """
 Tinymovr Message Rate Tests
-Copyright Ioannis Chatzikonstantinou 2020-2023
+Copyright 2020-2026 MotionLayer P.C.
 
 Tests the rate of CAN messages on the bus.
 

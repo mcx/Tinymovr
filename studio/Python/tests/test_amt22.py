@@ -1,6 +1,6 @@
 """
 Tinymovr Board Config Tests
-Copyright Ioannis Chatzikonstantinou 2020-2023
+Copyright 2020-2026 MotionLayer P.C.
 
 Tests saving and loading Tinymovr configuration to/from NVRAM.
 

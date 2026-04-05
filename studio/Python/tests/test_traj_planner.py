@@ -1,6 +1,6 @@
 """
 Tinymovr Trajectory Planner Tests
-Copyright Ioannis Chatzikonstantinou 2020-2023
+Copyright 2020-2026 MotionLayer P.C.
 
 Tests the functionality of the Tinymovr trajectory planner.
 

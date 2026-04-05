@@ -1,6 +1,6 @@
 """
 Tinymovr Codecs Module
-Copyright Ioannis Chatzikonstantinou 2020-2023
+Copyright 2020-2026 MotionLayer P.C.
 
 Implements codecs for various datatypes.
 

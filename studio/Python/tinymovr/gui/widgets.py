@@ -1,6 +1,6 @@
 """
 Tinymovr Studio custom Qt widgets
-Copyright Ioannis Chatzikonstantinou 2020-2023
+Copyright 2020-2026 MotionLayer P.C.
 
 Various customized widgets for the Tinymovr Studio app
 
