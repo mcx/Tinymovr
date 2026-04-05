@@ -100,6 +100,69 @@ class TestHall(TMTestCase):
         self.erase_config()
         time.sleep(0.2)
 
+    @pytest.mark.sensor_hall
+    def test_b_velocity_control(self):
+        """
+        Test velocity control with Hall sensors, ramping through
+        velocities in both directions.
+        """
+        self.check_state(0)
+        self.erase_config()
+        time.sleep(0.2)
+
+        self.tm.sensors.select.position_sensor.connection = self.tm.sensors.select.position_sensor.connection.HALL
+        self.tm.sensors.select.commutation_sensor.connection = self.tm.sensors.select.commutation_sensor.connection.HALL
+
+        self.tm.sensors.select.position_sensor.bandwidth = 50
+        self.tm.sensors.select.commutation_sensor.bandwidth = 80
+        time.sleep(0.2)
+
+        self.try_calibrate(precheck_callback=set_pole_pairs)
+
+        self.tm.controller.velocity.limit = 700000
+        self.tm.controller.velocity.p_gain = 8e-6
+        self.tm.controller.velocity.i_gain = 0
+
+        self.tm.controller.velocity_mode()
+        self.check_state(2)
+
+        R = 10
+        multiplier = 60000 * tick / s
+        max_delta = 60000 * tick / s
+
+        velocity_pairs = []
+
+        for i in range(R):
+            target = i * multiplier
+            self.tm.controller.velocity.setpoint = target
+            time.sleep(tsleep)
+            velocity_pairs.append((target, self.tm.sensors.user_frame.velocity_estimate))
+
+        for i in range(R):
+            target = (R - i) * multiplier
+            self.tm.controller.velocity.setpoint = target
+            time.sleep(tsleep)
+            velocity_pairs.append((target, self.tm.sensors.user_frame.velocity_estimate))
+
+        for i in range(R):
+            target = -i * multiplier
+            self.tm.controller.velocity.setpoint = target
+            time.sleep(tsleep)
+            velocity_pairs.append((target, self.tm.sensors.user_frame.velocity_estimate))
+
+        for i in range(R):
+            target = (i - R) * multiplier
+            self.tm.controller.velocity.setpoint = target
+            time.sleep(tsleep)
+            velocity_pairs.append((target, self.tm.sensors.user_frame.velocity_estimate))
+
+        for target, estimate in velocity_pairs:
+            self.assertAlmostEqual(target, estimate, delta=max_delta)
+
+        self.tm.controller.idle()
+        self.erase_config()
+        time.sleep(0.2)
+
 
 if __name__ == "__main__":
     unittest.main()
