@@ -66,7 +66,7 @@ setup(
     entry_points={
         "console_scripts": [
             "tinymovr_cli=tinymovr.cli:spawn",
-            "tinymovr=tinymovr.gui:spawn",
+            "tinymovr=tinymovr.gui.gui:spawn",
             "tinymovr_dfu=tinymovr.dfu:spawn"
         ]
     },

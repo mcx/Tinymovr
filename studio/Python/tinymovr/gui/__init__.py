@@ -28,4 +28,3 @@ from tinymovr.gui.widgets import (
 )
 from tinymovr.gui.worker import Worker
 from tinymovr.gui.window import MainWindow
-from tinymovr.gui.gui import spawn
