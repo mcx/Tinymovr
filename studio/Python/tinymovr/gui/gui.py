@@ -18,9 +18,7 @@ import yaml
 from importlib.metadata import version as get_version
 from importlib_resources import files
 from docopt import docopt
-from PySide6.QtWidgets import QApplication
-from PySide6.QtGui import QIcon, QPixmap
-from tinymovr.gui import MainWindow, app_stylesheet, app_stylesheet_dark, is_dark_mode
+
 from tinymovr.constants import app_name
 from tinymovr.config import configure_logging, add_spec
 
@@ -44,6 +42,22 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 def spawn():
+    try:
+        from PySide6.QtWidgets import QApplication
+        from PySide6.QtGui import QIcon
+    except ImportError:
+        print(
+            "Error: PySide6 is required for the Tinymovr Studio GUI but is not installed.\n"
+            "Install it with:\n\n"
+            "    pip install tinymovr[gui]\n\n"
+            "If PySide6 is not available for your platform, you can still use the\n"
+            "command-line interface:\n\n"
+            "    tinymovr_cli\n"
+        )
+        sys.exit(1)
+
+    from tinymovr.gui import MainWindow, app_stylesheet, app_stylesheet_dark, is_dark_mode
+
     version = get_version("tinymovr")
     arguments = docopt(__doc__, version=app_name + " " + str(version))
 
