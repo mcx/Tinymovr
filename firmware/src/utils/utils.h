@@ -143,6 +143,41 @@ static inline float fast_sin(float angle)
     return fast_cos(halfpi-angle);
 }
 
+static inline void fast_sincos(float angle, float *sin_out, float *cos_out)
+{
+    angle = angle - our_floorf(angle * INVTWOPI) * TWOPI;
+    angle = angle > 0.f ? angle : -angle;
+
+    float r, cos_sign, sin_sign;
+    if (angle < halfpi)
+    {
+        r = angle;
+        cos_sign = 1.0f;
+        sin_sign = 1.0f;
+    }
+    else if (angle < pi)
+    {
+        r = pi - angle;
+        cos_sign = -1.0f;
+        sin_sign = 1.0f;
+    }
+    else if (angle < threehalfpi)
+    {
+        r = angle - pi;
+        cos_sign = -1.0f;
+        sin_sign = -1.0f;
+    }
+    else
+    {
+        r = TWOPI - angle;
+        cos_sign = 1.0f;
+        sin_sign = -1.0f;
+    }
+
+    *cos_out = cos_sign * cos_32s(r);
+    *sin_out = sin_sign * cos_32s(halfpi - r);
+}
+
 typedef struct {
     float sum_current;
     float sum_current_squared;

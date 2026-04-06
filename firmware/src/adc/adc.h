@@ -109,7 +109,9 @@ void ADC_reset(void);
 bool ADC_calibrate_offset(void);
 float ADC_get_mcu_temp(void);
 void ADC_get_phase_currents(FloatTriplet *phc);
+const FloatTriplet *ADC_get_phase_currents_ptr(void);
 void ADC_update(void);
+void ADC_update_temp(void);
 
 ADCConfig *ADC_get_config(void);
 void ADC_restore_config(ADCConfig *config_);
