@@ -54,6 +54,9 @@ Use this decision tree to find the right documentation:
 ├─ Write tests
 │  └─→ Read: TESTING.md (test types, markers, patterns)
 │
+├─ Debug firmware with RTT / J-Link
+│  └─→ Read: TESTING.md § "Firmware Debugging with Segger RTT"
+│
 ├─ Find a file or understand directory layout
 │  └─→ Read: STRUCTURE.md
 │

@@ -32,6 +32,7 @@ typedef struct
 extern volatile SchedulerState scheduler_state;
 
 void wait_for_control_loop_interrupt(void);
+void wait_for_control_loop_interrupt_cal(void);
 
 static inline uint8_t scheduler_get_warnings(void)
 {

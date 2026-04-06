@@ -45,6 +45,7 @@ BASEFLAGS += -mfpu=fpv4-sp-d16
 BASEFLAGS += -ffunction-sections # generate a separate ELF section for each function in the source file
 BASEFLAGS += -fdata-sections # generate a separate ELF section for each data item in the source file
 BASEFLAGS += -fno-tree-loop-distribute-patterns # disable replacing with calls to builting functions
+BASEFLAGS += -frandom-seed=$< # deterministic builds: prevent GCC internal randomness from varying code layout
 BASEFLAGS += -Wall
 BASEFLAGS += -Wlogical-op
 BASEFLAGS += -Waggregate-return
