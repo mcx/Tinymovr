@@ -29,7 +29,6 @@ typedef struct
     uint8_t warnings;
     uint8_t errors;
     bool is_calibrating;
-    FloatTriplet I_phase_meas;
     FloatTriplet modulation_values;
     float Iq_estimate;
     float Id_estimate;

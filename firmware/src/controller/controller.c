@@ -41,7 +41,6 @@ static ControllerState state = {
     .errors = CONTROLLER_ERRORS_NONE,
     .is_calibrating = false,
 
-    .I_phase_meas = {0.0f, 0.0f, 0.0f},
     .modulation_values = {0.0f, 0.0f, 0.0f},
 
     .Iq_estimate = 0.0f,
