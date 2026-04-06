@@ -119,7 +119,7 @@ bool motor_calibrate_resistance(void)
             const float pwm_setpoint = V_setpoint / system_get_Vbus();
             SVM(pwm_setpoint, 0.0f, &modulation_values.A, &modulation_values.B, &modulation_values.C);
             gate_driver_set_duty_cycle(&modulation_values);
-            wait_for_control_loop_interrupt();
+            wait_for_control_loop_interrupt_cal();
         }
         
         const float R = our_fabsf(V_setpoint / I_cal);
@@ -166,7 +166,7 @@ bool motor_calibrate_inductance(void)
             const float pwm_setpoint = V_setpoint / system_get_Vbus();
             SVM(pwm_setpoint, 0.0f, &modulation_values.A, &modulation_values.B, &modulation_values.C);
             gate_driver_set_duty_cycle(&modulation_values);
-            wait_for_control_loop_interrupt();
+            wait_for_control_loop_interrupt_cal();
         }
         const float num_cycles = CAL_L_LEN / 2;
         const float dI_by_dt = (I_high - I_low) / (PWM_PERIOD_S * num_cycles);

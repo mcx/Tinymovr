@@ -598,6 +598,147 @@ Before submitting a PR:
 - [ ] SAFETY.md updated if adding safety constraints
 - [ ] TESTING.md updated if adding new test patterns
 
+## Firmware Debugging with Segger RTT
+
+### What is RTT
+
+Segger Real-Time Transfer (RTT) is a debug output mechanism that writes to a RAM buffer read by the J-Link probe over SWD. Unlike UART or semihosting, RTT has negligible timing overhead (~1-2 us per printf), making it suitable for instrumenting time-critical code paths without significantly disturbing the system under observation.
+
+The RTT library is already integrated at `firmware/src/rtt/`. No additional setup is needed beyond including the header and calling the printf function.
+
+### Choosing the Right J-Link Tool
+
+Three J-Link tools interact with the target. They have fundamentally different behaviors that matter:
+
+| Tool | Halts core on connect? | Supports RTT? | Supports flashing? | Use for |
+|------|----------------------|---------------|--------------------|----|
+| `JLinkExe` | Yes (halts, but `g` resumes and `exit` disconnects cleanly) | No | Yes | Flashing firmware |
+| `JLinkRTTLogger` | **No** | Yes (file output) | No | Capturing RTT from a running target |
+| `JLinkGDBServerCL` | **Yes (and stays connected)** | Yes (via RTTClient) | Yes (via GDB) | Interactive debugging with breakpoints |
+
+**Key principle**: The GDB server maintains an active debug connection that halts the core on attach. This prevents normal firmware operation (interrupts, CAN, etc.). For RTT capture during normal operation, use `JLinkRTTLogger` which reads RTT memory through background SWD reads without halting.
+
+The correct workflow for "observe running firmware" is:
+1. Flash with `JLinkExe` (connects, flashes, resets, releases, disconnects)
+2. Capture with `JLinkRTTLogger` (connects non-intrusively, reads RTT memory)
+
+The GDB server + RTTClient combination is only appropriate when you need breakpoints or single-stepping, and you accept that the firmware's real-time behavior is disrupted.
+
+### RTT Instrumentation Principles
+
+**Include the header**:
+```c
+#include <src/rtt/SEGGER_RTT.h>
+```
+
+**Print to channel 0**:
+```c
+SEGGER_RTT_printf(0, "format string\n", args...);
+```
+
+**Format specifier limitations**: RTT printf supports `%d`, `%u`, `%x`, `%s` but **not `%f`**. Convert floats to scaled integers: `(int)(value * 1000.0f)`.
+
+**Measuring execution time**: The `DWT->CYCCNT` register is the Cortex-M4 hardware cycle counter. It is reset to 0 inside `wait_for_control_loop_interrupt()` at the start of each PWM period. Reading it at any point gives elapsed cycles since the last PWM interrupt was serviced. At 150 MHz, 1 cycle = 6.67 ns, and 7500 cycles = 50 us = one PWM period.
+
+**Minimizing observer effect**: RTT printf takes ~1-2 us per call. To avoid skewing timing measurements in tight loops, gate output to the first N iterations:
+```c
+if (i < 10) {
+    SEGGER_RTT_printf(0, "...\n", ...);
+}
+```
+
+**Always remove instrumentation before committing.** RTT calls are for transient diagnosis only.
+
+### Device Pack and PAC5527 Registration
+
+The PAC5527 is not in Segger's default device database. The device definition lives in `firmware/pac55xx_device_pack/`.
+
+- `JLinkGDBServerCL` accepts `-JLinkDevicesXMLPath firmware/pac55xx_device_pack/` on the command line (this is how the VSCode cortex-debug extension works — see `.vscode/launch.json`).
+- `JLinkExe` and `JLinkRTTLogger` do **not** support `-JLinkDevicesXMLPath`. They find PAC5527 via the user-level device database at `~/.config/SEGGER/JLinkDevices/`. If these tools don't recognize `PAC5527`, copy the device pack XML there:
+
+```bash
+mkdir -p ~/.config/SEGGER/JLinkDevices/Qorvo
+cp firmware/pac55xx_device_pack/JLinkDevices.xml ~/.config/SEGGER/JLinkDevices/Qorvo/
+```
+
+### Flashing Firmware
+
+```bash
+JLinkExe -device PAC5527 -if SWD -speed 4000 -CommandFile /dev/stdin << 'EOF'
+h
+loadfile firmware/build/tinymovr_fw.elf
+r
+g
+sleep 1000
+exit
+EOF
+```
+
+The `sleep 1000` gives the firmware time to boot and initialize peripherals (CAN, ADC, timers) before JLinkExe disconnects. Without it, early SWD disconnect can sometimes leave the MCU in a partial init state.
+
+### Capturing RTT Output
+
+```bash
+JLinkRTTLogger -device PAC5527 -if SWD -speed 4000 -RTTChannel 0 /tmp/rtt_output.txt
+```
+
+This blocks in the foreground. Start it **before** triggering the firmware operation you want to observe. It scans RAM for the RTT control block, then streams data to the output file. Kill it with Ctrl-C (or `kill` the PID) when done.
+
+If it stays stuck on "Searching for RTT Control Block...", the firmware either hasn't booted (reflash) or doesn't link the RTT library (check that `SEGGER_RTT.o` appears in the build output).
+
+### Triggering Device Operations
+
+With firmware running and RTT capturing, use the Python client to trigger operations:
+
+```bash
+venv/bin/python3 -c "
+import can, time
+from tinymovr import init_router, destroy_router
+from tinymovr.config import get_bus_config, create_device
+params = get_bus_config(['canine', 'slcan_disco'], bitrate=1000000)
+init_router(can.Bus, params)
+tm = create_device(node_id=1)
+# ... trigger operation, wait, read results ...
+destroy_router()
+"
+```
+
+**Always use `venv/bin/python3`** (explicit path to the project venv at the repository root). The `tinymovr` package should be installed in dev mode: `venv/bin/pip install -e studio/Python`.
+
+### J-Link Process Management
+
+Only one process can own the J-Link USB connection at a time. Stale processes from previous sessions are the most common source of connection failures.
+
+**Before starting any J-Link tool**, check and clean up:
+```bash
+pkill -f JLink          # kill all JLink processes
+sleep 2                 # USB device needs time to release
+```
+
+**Symptoms of stale processes**:
+- "Could not connect to J-Link" → another process holds the USB device
+- "Failed to open listener port 2331" → a GDB server is still bound to the port
+
+### Timing Reference
+
+| Quantity | Value |
+|----------|-------|
+| HCLK frequency | 150 MHz |
+| 1 CPU cycle | 6.67 ns |
+| 1 PWM period (20 kHz) | 50 us = 7500 cycles |
+| Control loop budget | <3000 cycles (<20 us, 40% utilization) |
+| Flash wait states | 6 (a cache miss costs 7 cycles per fetch) |
+| `DWT->CYCCNT` reset point | Inside `wait_for_control_loop_interrupt()`, after ADC interrupt serviced |
+
+### Architectural Note: Flash Cache Sensitivity
+
+The PAC5527 flash has 6 wait states, mitigated by a small instruction cache. Functions **not** marked `TM_RAMFUNC` run from flash and are subject to cache behavior. When binary layout shifts (from any source change, including version strings or compiler non-determinism), function addresses change, altering cache hit/miss patterns. This can cause significant and non-obvious timing variation in flash-resident code.
+
+This matters for debugging because:
+- Adding RTT instrumentation changes the binary layout, which may itself alter the behavior you're trying to observe.
+- Two builds from identical source without `-frandom-seed` may produce different binaries with different timing characteristics.
+- Functions in the 20 kHz control path that run from flash are fragile to layout changes. Time-critical functions should be marked `TM_RAMFUNC` to run from RAM at zero wait states.
+
 ## References
 
 - [CONVENTIONS.md](CONVENTIONS.md) - Code style and patterns

@@ -89,6 +89,29 @@ void wait_for_control_loop_interrupt(void)
 	// At this point control is returned to main loop.
 }
 
+void wait_for_control_loop_interrupt_cal(void)
+{
+	while (!scheduler_state.adc_interrupt)
+	{
+		if (scheduler_state.can_interrupt)
+		{
+			CAN_process_interrupt();
+			if (PAC55XX_CAN->SR.RBS == 0)
+			{
+				scheduler_state.can_interrupt = false;
+			}
+		}
+		else
+		{
+			__DSB();
+			__ISB();
+			__WFI();
+		}
+	}
+	scheduler_state.adc_interrupt = false;
+	ADC_update();
+}
+
 void ADC_IRQHandler(void)
 {
 	PAC55XX_ADC->ADCINT.ADCIRQ0IF = 1;
