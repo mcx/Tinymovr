@@ -26,7 +26,7 @@ from tinymovr.config import get_bus_config, configure_logging, add_spec
 
 """
 Tinymovr CLI Module
-Copyright Ioannis Chatzikonstantinou 2020-2023
+Copyright 2020-2026 MotionLayer P.C.
 
 The Tinymovr Studio IPython-based command line interface
 

@@ -26,7 +26,7 @@ uint32_t can_frame_hash;
 
 //  * The function "can_io_config" is part of the Tinymovr-Firmware distribution
 //  * (https://github.com/yconst/tinymovr-firmware).
-//  * Copyright (c) 2022 Ioannis Chatzikonstantinou.
+//  * Copyright (c) 2022-2026 MotionLayer P.C.
 //  *
 //  * This program is free software: you can redistribute it and/or modify
 //  * it under the terms of the GNU General Public License as published by

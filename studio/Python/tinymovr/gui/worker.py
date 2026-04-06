@@ -1,6 +1,6 @@
 """
 Tinymovr GUI Worker
-Copyright Ioannis Chatzikonstantinou 2020-2023
+Copyright 2020-2026 MotionLayer P.C.
 
 The GUI Worker class, subclass of QObject, that handles
 updates and IO, running in a separate thread

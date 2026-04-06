@@ -1,6 +1,6 @@
 """
 Tinymovr Export/Import Tests
-Copyright Ioannis Chatzikonstantinou 2020-2023
+Copyright 2020-2026 MotionLayer P.C.
 
 Tests for export/import functionality:
 - YAML spec consistency (all settable config attrs have export: True)

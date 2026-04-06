@@ -20,8 +20,8 @@ master_doc = 'index'
 # -- Project information -----------------------------------------------------
 
 project = 'Tinymovr'
-copyright = '2020-2024, Yannis Chatzikonstantinou'
-author = 'Yannis Chatzikonstantinou'
+copyright = '2020-2026, MotionLayer P.C.'
+author = 'MotionLayer P.C.'
 
 
 # -- General configuration ---------------------------------------------------

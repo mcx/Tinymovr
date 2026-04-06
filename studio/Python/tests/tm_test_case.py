@@ -1,6 +1,6 @@
 """
 Tinymovr Base Test Class
-Copyright Ioannis Chatzikonstantinou 2020-2023
+Copyright 2020-2026 MotionLayer P.C.
 
 Implements convenience functionality.
 

@@ -122,7 +122,7 @@ static inline void can_process_standard(void)
 
 //  * The function "can_process_extended" is part of the Tinymovr-Firmware distribution
 //  * (https://github.com/yconst/tinymovr-firmware).
-//  * Copyright (c) 2022 Ioannis Chatzikonstantinou.
+//  * Copyright (c) 2022-2026 MotionLayer P.C.
 //  *
 //  * This program is free software: you can redistribute it and/or modify
 //  * it under the terms of the GNU General Public License as published by
@@ -198,7 +198,7 @@ static inline void can_transmit_standard(uint8_t dataLen, uint16_t id, const uin
 
 //  * The function "can_transmit_extended" is part of the Tinymovr-Firmware distribution
 //  * (https://github.com/yconst/tinymovr-firmware).
-//  * Copyright (c) 2022 Ioannis Chatzikonstantinou.
+//  * Copyright (c) 2022-2026 MotionLayer P.C.
 //  *
 //  * This program is free software: you can redistribute it and/or modify
 //  * it under the terms of the GNU General Public License as published by

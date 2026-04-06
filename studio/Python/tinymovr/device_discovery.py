@@ -1,6 +1,6 @@
 """
 Tinymovr DeviceDiscovery Module
-Copyright Ioannis Chatzikonstantinou 2020-2023
+Copyright 2020-2026 MotionLayer P.C.
 
 Implements a class to discover nodes on the CAN bus based on
 the reception of heartbeat frames

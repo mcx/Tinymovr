@@ -1,6 +1,6 @@
 """
 Tinymovr BusManager Module
-Copyright Ioannis Chatzikonstantinou 2020-2023
+Copyright 2020-2026 MotionLayer P.C.
 
 Implements a BusRouter class to distribute incoming traffic according to rules
 

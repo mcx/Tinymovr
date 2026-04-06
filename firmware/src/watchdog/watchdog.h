@@ -3,7 +3,7 @@
 //  * (https://github.com/yconst/tinymovr-firmware).
 //  * 
 //  * Copyright (c) 2022 Eugene Frizza
-//  * Copyright (c) 2022 Ioannis Chatzikonstantinou.
+//  * Copyright (c) 2022-2026 MotionLayer P.C.
 //  * 
 //  * This program is free software: you can redistribute it and/or modify  
 //  * it under the terms of the GNU General Public License as published by  
