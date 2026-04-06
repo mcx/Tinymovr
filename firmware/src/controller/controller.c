@@ -165,7 +165,8 @@ TM_RAMFUNC void CLPreStep(void)
 {
     gate_driver_set_duty_cycle(&three_phase_zero);
     // Should approximate zero as from Kirchoff
-    float Iphase_meas_sum = state.I_phase_meas.A + state.I_phase_meas.B + state.I_phase_meas.C; 
+    const FloatTriplet *I_meas = ADC_get_phase_currents_ptr();
+    float Iphase_meas_sum = I_meas->A + I_meas->B + I_meas->C; 
     update_statistics(&pre_cl_stats, Iphase_meas_sum);
 }
 
