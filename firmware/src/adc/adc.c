@@ -67,7 +67,7 @@ void ADC_init(void)
 {
     // Compute tau-dependent variables
     adc_state.I_phase_offset_D = 1.0f - powf(EPSILON, -1.0f / (adc_config.I_phase_offset_tau * PWM_FREQ_HZ));
-    adc_state.temp_D = 1.0f - powf(EPSILON, -1.0f / (adc_config.temp_tau * PWM_FREQ_HZ));
+    adc_state.temp_D = 1.0f - powf(EPSILON, -1.0f / (adc_config.temp_tau * SYSTICK_FREQ_HZ));
 
     // --- Begin CAFE2 Initialization
 
@@ -254,6 +254,11 @@ TM_RAMFUNC void ADC_get_phase_currents(FloatTriplet *phc)
     phc->C = adc_state.I_phase_meas.C;
 }
 
+TM_RAMFUNC const FloatTriplet *ADC_get_phase_currents_ptr(void)
+{
+    return &adc_state.I_phase_meas;
+}
+
 TM_RAMFUNC void ADC_update(void)
 {
     switch (controller_get_state())
@@ -275,19 +280,14 @@ TM_RAMFUNC void ADC_update(void)
         }
         default: break;
     }
-    
-    // Temperature in oC at time of internal temperature sensor
-    const float FTTEMP = 27 + 273; // READ_UINT16(0x0010041E);
-    const float temp_val = (float)(PAC55XX_ADC->DTSERES2.VAL);
-    adc_state.temp = ( ((FTTEMP * (temp_val + 122.88f)) / (adc_state.temp_cal_const + 122.88f)) - 273) * adc_state.temp_D + adc_state.temp * (1.0f - adc_state.temp_D);
+}
 
-    // // Internal MCU temperature sensor reading at FTTEMP temperature in ADC counts.
-    // uint16_t TTEMPS = 0;
-    // memcpy(&TTEMPS, (const size_t *)0x0010041C, sizeof(uint16_t));
-    // // Temperature in oC at time of internal temperature sensor
-    // const int32_t FTTEMP = 27; // READ_UINT16(0x0010041E);
-    // const int32_t temp_val = (int32_t)(PAC55XX_ADC->DTSERES2.VAL);
-    // adc_state.temp = ((((FTTEMP + 273) * ((temp_val * 100) + 12288)) / (((int16_t)TTEMPS * 100) + 12288)) - 273);
+void ADC_update_temp(void)
+{
+    const float FTTEMP = 27 + 273;
+    const float temp_val = (float)(PAC55XX_ADC->DTSERES2.VAL);
+    adc_state.temp = (((FTTEMP * (temp_val + 122.88f)) / (adc_state.temp_cal_const + 122.88f)) - 273)
+                     * adc_state.temp_D + adc_state.temp * (1.0f - adc_state.temp_D);
 }
 
 ADCConfig *ADC_get_config(void)

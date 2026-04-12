@@ -169,11 +169,13 @@ void sensors_restore_config(SensorsConfig *config_)
             sensor_make_blank(&(sensors[i].sensor));
         }
     }
+    observer_update_epos_factor();
 }
 
 void commutation_sensor_set_connection(sensor_connection_t new_connection)
 {
     sensor_set_connection(&(commutation_sensor_p), &(position_sensor_p), new_connection);
+    observer_update_epos_factor();
 }
 
 void position_sensor_set_connection(sensor_connection_t new_connection)
@@ -211,6 +213,7 @@ void sensor_external_spi_set_type_avlos(sensors_setup_external_spi_type_options 
         }
         sensors[SENSOR_CONNECTION_EXTERNAL_SPI].sensor.config.type = internal_type;
         sensor_init_with_defaults(s);
+        observer_update_epos_factor();
     }
 }
 

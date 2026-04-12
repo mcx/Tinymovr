@@ -41,7 +41,6 @@ static ControllerState state = {
     .errors = CONTROLLER_ERRORS_NONE,
     .is_calibrating = false,
 
-    .I_phase_meas = {0.0f, 0.0f, 0.0f},
     .modulation_values = {0.0f, 0.0f, 0.0f},
 
     .Iq_estimate = 0.0f,
@@ -165,7 +164,8 @@ TM_RAMFUNC void CLPreStep(void)
 {
     gate_driver_set_duty_cycle(&three_phase_zero);
     // Should approximate zero as from Kirchoff
-    float Iphase_meas_sum = state.I_phase_meas.A + state.I_phase_meas.B + state.I_phase_meas.C; 
+    const FloatTriplet *I_meas = ADC_get_phase_currents_ptr();
+    float Iphase_meas_sum = I_meas->A + I_meas->B + I_meas->C; 
     update_statistics(&pre_cl_stats, Iphase_meas_sum);
 }
 
@@ -271,8 +271,8 @@ TM_RAMFUNC void CLControlStep(void)
     }
 
     const float e_phase = observer_get_epos_motor_frame();
-    const float c_I = fast_cos(e_phase);
-    const float s_I = fast_sin(e_phase);
+    float c_I, s_I;
+    fast_sincos(e_phase, &s_I, &c_I);
 
     float Vd;
     float Vq;
@@ -284,11 +284,11 @@ TM_RAMFUNC void CLControlStep(void)
     }
     else
     {
-        ADC_get_phase_currents(&(state.I_phase_meas));
+        const FloatTriplet *I_meas = ADC_get_phase_currents_ptr();
 
         // Clarke transform
-        const float Ialpha = state.I_phase_meas.A;
-        const float Ibeta = one_by_sqrt3 * (state.I_phase_meas.B - state.I_phase_meas.C);
+        const float Ialpha = I_meas->A;
+        const float Ibeta = one_by_sqrt3 * (I_meas->B - I_meas->C);
 
         // Park transform
         const float Id = (c_I * Ialpha) + (s_I * Ibeta);

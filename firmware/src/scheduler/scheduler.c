@@ -33,6 +33,21 @@ volatile uint32_t msTicks = 0;
 
 volatile SchedulerState scheduler_state = {0};
 
+TM_RAMFUNC __attribute__((noinline)) static void control_loop_service(void)
+{
+	sensor_invalidate(commutation_sensor_p);
+	sensor_invalidate(position_sensor_p);
+	observer_invalidate(&commutation_observer);
+	observer_invalidate(&position_observer);
+	sensor_prepare(commutation_sensor_p);
+	sensor_prepare(position_sensor_p);
+	ADC_update();
+	sensor_update(commutation_sensor_p, true);
+	sensor_update(position_sensor_p, true);
+	observer_update(&commutation_observer);
+	observer_update(&position_observer);
+}
+
 void wait_for_control_loop_interrupt(void)
 {
 	while (!scheduler_state.adc_interrupt)
@@ -72,20 +87,7 @@ void wait_for_control_loop_interrupt(void)
 	scheduler_state.busy = true;
 	scheduler_state.adc_interrupt = false;
 	DWT->CYCCNT = 0;
-	// We have to service the control loop by updating
-	// current measurements and encoder estimates.
-	sensor_invalidate(commutation_sensor_p);
-	sensor_invalidate(position_sensor_p);
-	observer_invalidate(&commutation_observer);
-	observer_invalidate(&position_observer);
-	// If both pointers point to the same sensor, it will only br prepared and updated once
-	sensor_prepare(commutation_sensor_p);
-	sensor_prepare(position_sensor_p);
-	ADC_update();
-	sensor_update(commutation_sensor_p, true);
-	sensor_update(position_sensor_p, true);
-	observer_update(&commutation_observer);
-	observer_update(&position_observer);
+	control_loop_service();
 	// At this point control is returned to main loop.
 }
 
@@ -136,6 +138,7 @@ void SysTick_Handler(void)
     msTicks = msTicks + 1; 
     CAN_update();
 	system_update();
+	ADC_update_temp();
 }
 
 void UART_ReceiveMessageHandler(void)
