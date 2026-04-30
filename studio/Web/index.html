@@ -1,0 +1,190 @@
+<!doctype html>
+<!--
+================================================================================
+  Tinymovr Web Dashboard
+================================================================================
+
+  A self-contained Web Serial dashboard for Tinymovr servo drives. Built with
+  Vite + vite-plugin-singlefile so authoring uses real ES modules and CSS,
+  while `npm run build` emits one inlined HTML file suitable for static
+  hosting (e.g. GitHub Pages).
+
+  Architecture overview (in-browser, zero runtime dependencies):
+
+    WebSerial port  →  SlcanDriver  →  CanRouter  →  Discovery + AvlosClient
+                       (T....\r)        (filter)      (heartbeats / get/set/call)
+
+  Protocol descriptions for every Tinymovr firmware version are baked in by
+  `studio/Web/build_specs.py`, which runs the same `avlos.deserialize()`
+  pipeline the firmware and Python client use.
+
+  Browser support: Web Serial is currently Chrome / Edge / Opera only.
+================================================================================
+-->
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tinymovr Web Dashboard</title>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="app">
+    <h1>Tinymovr</h1>
+    <span class="brand-sub">Web Dashboard</span>
+    <span class="spacer"></span>
+    <div class="conn-row">
+      <span id="status" class="status-pill" data-state="disconnected">
+        <span class="dot"></span><span class="text">Disconnected</span>
+      </span>
+      <select id="bitrate" title="CAN bitrate (slcan code)">
+        <option value="S0">10 kbps</option>
+        <option value="S1">20 kbps</option>
+        <option value="S2">50 kbps</option>
+        <option value="S3">100 kbps</option>
+        <option value="S4">125 kbps</option>
+        <option value="S5">250 kbps</option>
+        <option value="S6">500 kbps</option>
+        <option value="S7">800 kbps</option>
+        <option value="S8" selected>1 Mbps</option>
+      </select>
+      <select id="device-picker" disabled title="Discovered devices">
+        <option value="">— Device —</option>
+      </select>
+      <span id="telemetry" class="telemetry" title="Live link telemetry (bytes / frames / heartbeats)" hidden>
+        rx <span class="num" id="telemetry-bytes">0</span>B
+        · <span class="num" id="telemetry-frames">0</span>f
+        · <span class="num" id="telemetry-hb">0</span>hb
+      </span>
+      <button id="theme" title="Toggle theme">🌓</button>
+      <button id="connect" class="primary">Connect</button>
+    </div>
+  </header>
+
+  <div id="unsupported" class="banner" hidden>
+    <strong>Web Serial not available.</strong>
+    This dashboard needs a Chromium-based browser (Chrome, Edge or Opera) and an
+    slcan-compatible USB-CAN adapter (e.g. CANable / candleLight in slcan firmware).
+    On other browsers, please use the desktop Tinymovr Studio:
+    <code>pip install tinymovr</code>.
+  </div>
+
+  <div id="dashboard">
+    <div id="empty" class="placeholder">
+      <span id="empty-text">Connect to your slcan adapter to discover Tinymovr devices on the bus.</span>
+      <small id="empty-sub">Heartbeats are decoded automatically; pick a device from the dropdown above.</small>
+    </div>
+
+    <!-- Fleet view: one <tm-device-tile> per heartbeating device. The
+         multipoll runtime drives the grid imperatively; it stays empty
+         (and hidden) until the user selects "All devices" in the
+         picker. -->
+    <div id="tile-view" hidden>
+      <section id="tile-grid" class="grid-tiles"></section>
+    </div>
+
+    <div id="device-view" hidden>
+      <!-- Plot host: full-width, dedicated card that appears when the
+           user clicks any sparkline on the page. Single shared plot —
+           clicking another sparkline swaps the metric in-place. -->
+      <section id="plot-host" hidden>
+        <dash-plot id="plot"></dash-plot>
+      </section>
+
+      <!-- Axis: per-mode estimate + setpoint, paired in one card.
+           This is the dashboard's headline view: live measurement on top,
+           command directly below. Controller mode highlights the active
+           setpoint with an accent tint and ACTIVE badge. -->
+      <section class="grid-axis" style="margin-bottom: 16px;">
+        <dash-card title="Position" title-divider>
+          <dash-stat id="m-pos" label="Estimate" unit="ticks" min-chars="9">
+            <dash-sparkline id="s-pos" color="var(--accent)"></dash-sparkline>
+          </dash-stat>
+          <tm-setpoint id="sp-position" label="Setpoint" unit="ticks" flat></tm-setpoint>
+        </dash-card>
+        <dash-card title="Velocity" title-divider>
+          <dash-stat id="m-vel" label="Estimate" unit="ticks/s" min-chars="9">
+            <dash-sparkline id="s-vel" color="var(--accent)"></dash-sparkline>
+          </dash-stat>
+          <tm-setpoint id="sp-velocity" label="Setpoint" unit="ticks/s" flat></tm-setpoint>
+        </dash-card>
+        <dash-card title="Current (Iq)" title-divider>
+          <dash-stat id="m-iq" label="Estimate" unit="A" min-chars="6">
+            <dash-sparkline id="s-iq" color="var(--accent)"></dash-sparkline>
+          </dash-stat>
+          <tm-setpoint id="sp-current" label="Setpoint" unit="A" flat></tm-setpoint>
+        </dash-card>
+      </section>
+
+      <!-- Controls: state, mode, actions.
+           Three narrow cards, each a vertical stack of full-width buttons.
+           State and Mode use <tm-state-buttons>/<tm-mode-buttons> for
+           selection (clicking transitions the controller); Actions hosts
+           one-shot triggers (save / reset / erase). -->
+      <section class="grid-controls" style="margin-bottom: 16px;">
+        <dash-card title="State">
+          <tm-state-buttons id="ctl-state"></tm-state-buttons>
+        </dash-card>
+        <dash-card title="Mode">
+          <tm-mode-buttons id="ctl-mode"></tm-mode-buttons>
+        </dash-card>
+        <dash-card title="Actions">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <button id="act-save"  class="action-btn">Save config to NVM</button>
+            <button id="act-reset" class="action-btn">Reset device</button>
+            <hr class="card-divider">
+            <button id="act-erase" class="action-btn danger">Erase config &amp; reset</button>
+          </div>
+        </dash-card>
+      </section>
+
+      <!-- Bus / health: supporting context for safety and confidence. -->
+      <section class="grid-stats" style="margin-bottom: 16px;">
+        <dash-card title="Bus voltage">
+          <div class="gauge-wrap">
+            <dash-gauge id="m-vbus" min="0" max="60" label="V"></dash-gauge>
+          </div>
+        </dash-card>
+        <dash-card title="Bus current &amp; power" id="card-bus">
+          <dash-stat id="m-ibus" label="Current" unit="A" min-chars="6">
+            <dash-sparkline id="s-ibus" color="var(--accent)"></dash-sparkline>
+          </dash-stat>
+          <hr class="card-divider">
+          <dash-stat id="m-power" label="Power" unit="W" min-chars="7">
+            <dash-sparkline id="s-power" color="var(--accent)"></dash-sparkline>
+          </dash-stat>
+        </dash-card>
+        <dash-card title="MCU temperature">
+          <div class="gauge-wrap">
+            <dash-gauge id="m-temp" min="0" max="100" label="°C"></dash-gauge>
+          </div>
+        </dash-card>
+        <dash-card title="Health" id="card-health">
+          <tm-health id="m-health"></tm-health>
+        </dash-card>
+      </section>
+
+      <!-- Device info / spec explorer -->
+      <details class="explorer">
+        <summary>
+          <span>Spec explorer <span class="sub" id="explorer-sub"></span></span>
+        </summary>
+        <div id="explorer-tree" class="explorer-tree"></div>
+      </details>
+    </div>
+  </div>
+
+  <footer class="app">
+    <span>Tinymovr Web Dashboard · slcan / WebSerial</span>
+    <span>
+      <a href="https://github.com/tinymovr/Tinymovr" target="_blank" rel="noreferrer">GitHub</a> ·
+      <a href="https://tinymovr.readthedocs.io" target="_blank" rel="noreferrer">Docs</a>
+    </span>
+  </footer>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

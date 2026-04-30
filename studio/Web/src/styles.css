@@ -1,0 +1,350 @@
+:root[data-theme="dark"] {
+  --bg: #1c1c1c;
+  --surface: #2b2b2d;
+  --text: #ffffff;
+  --muted: #d4d4d4;
+  --accent: #1188ff;
+  --bar: #36393d;
+  --border: rgba(255, 255, 255, 0.10);
+  --up: #0099ff;
+  --down: #ff5b6c;
+  --warn: #ffb84c;
+  --good: #6dd58c;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --pre-bg: #131313;
+  --num-font: "Anonymous Pro", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+:root[data-theme="light"] {
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --text: #111827;
+  --muted: #4b5563;
+  --accent: #1188ff;
+  --bar: #e5e7eb;
+  --border: rgba(0, 0, 0, 0.08);
+  --up: #006fbe;
+  --down: #d14458;
+  --warn: #c47b00;
+  --good: #1a8a3a;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --pre-bg: #f9fafb;
+  --num-font: "Anonymous Pro", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 32px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Top bar */
+header.app {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+header.app h1 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+}
+header.app .brand-sub {
+  font-size: 12px;
+  opacity: 0.55;
+  margin-left: -8px;
+}
+header.app .spacer { flex: 1; }
+header.app .conn-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+header.app select, header.app button {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 13px;
+  height: 32px;
+  cursor: pointer;
+}
+header.app button.primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  font-weight: 600;
+}
+header.app button.primary[data-active="true"] {
+  background: var(--down);
+}
+header.app button:hover { filter: brightness(1.1); }
+header.app button:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
+
+/* Connection status pill */
+.status-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  font-size: 12px;
+  font-weight: 600;
+}
+.status-pill .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--down);
+  box-shadow: 0 0 0 0 currentColor;
+}
+.status-pill[data-state="connecting"] .dot { background: var(--warn); animation: blink 1s ease-in-out infinite; }
+.status-pill[data-state="connected"]  .dot { background: var(--good); }
+.status-pill[data-state="disconnected"] .dot { background: var(--down); }
+@keyframes blink { 50% { opacity: 0.3; } }
+
+/* Device picker - styled identically to bitrate select for consistency */
+#device-picker { min-width: 200px; }
+
+/* Telemetry chip in the header */
+.telemetry {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--pre-bg);
+  border: 1px solid var(--border);
+  font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--muted);
+  height: 32px;
+}
+.telemetry .num { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.telemetry[data-flow="active"] .num { color: var(--good); }
+
+/* Banner / fallback */
+.banner {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--warn);
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+.banner strong { color: var(--warn); }
+.banner code {
+  font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: var(--pre-bg);
+  padding: 1px 5px; border-radius: 4px;
+}
+
+/* Layout grids */
+.grid-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+/* Subtle divider inside merged stat cards */
+.card-divider {
+  border: 0;
+  height: 1px;
+  background: var(--border);
+  margin: 0;
+  opacity: 0.7;
+}
+/* Vertically center gauges so single-stat cards balance against
+   the taller merged card on the same row. */
+.gauge-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+}
+/* The axis row (Position / Velocity / Current) and the controls row
+   (State / Mode / Actions) share an identical 3-column rhythm so the
+   cards line up vertically across both sections. */
+.grid-axis,
+.grid-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+@media (max-width: 900px) {
+  .page { padding: 16px; }
+}
+
+/* Full-width plot host: a single dedicated card that materialises
+   above the metric row whenever the user clicks a sparkline. The
+   `appear` class is re-applied on every focus/swap, retriggering the
+   animation so metric switches feel snappy and intentional. */
+#plot-host { margin-bottom: 16px; }
+#plot-host.appear { animation: plot-appear 220ms ease-out; }
+@keyframes plot-appear {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Fleet (All-devices) tile grid. Tile chrome lives inside the
+   <tm-device-tile> shadow root; this only handles wrapping. */
+.grid-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* Hidden helper */
+[hidden] { display: none !important; }
+
+/* Spec explorer */
+details.explorer {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 14px 20px;
+  box-shadow: var(--shadow);
+}
+details.explorer > summary {
+  cursor: pointer;
+  font-weight: 600;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+details.explorer > summary::-webkit-details-marker { display: none; }
+details.explorer > summary::after {
+  content: "▾"; opacity: 0.5; transition: transform 0.2s;
+}
+details.explorer[open] > summary::after { transform: rotate(180deg); }
+details.explorer .sub {
+  font-size: 12px; opacity: 0.6; font-weight: 400;
+}
+.explorer-tree {
+  margin-top: 14px;
+  font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  max-height: 480px;
+  overflow: auto;
+  padding-right: 8px;
+}
+.ep-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 8px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.ep-row:last-child { border-bottom: none; }
+.ep-row:hover { background: color-mix(in srgb, currentColor 5%, transparent); }
+.ep-row .path {
+  flex: 1 1 220px; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ep-row .kind {
+  font-size: 10px;
+  opacity: 0.65;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex: 0 0 auto;
+}
+.ep-row .value {
+  font-size: 12px;
+  padding: 3px 8px;
+  background: var(--pre-bg);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  min-width: 90px;
+  text-align: right;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+.ep-row .actions {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+}
+.ep-row .actions button, .ep-row .actions input, .ep-row .actions select {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font: inherit;
+  font-size: 12px;
+  height: 26px;
+  cursor: pointer;
+}
+.ep-row .actions input { width: 110px; cursor: text; }
+.ep-row .actions button:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+/* Empty state placeholder */
+.placeholder {
+  padding: 48px;
+  text-align: center;
+  color: var(--muted);
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  font-size: 14px;
+}
+.placeholder small { display: block; margin-top: 6px; opacity: 0.7; font-size: 12px; }
+
+/* Footer */
+footer.app {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  opacity: 0.55;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+footer.app a { color: var(--accent); text-decoration: none; }
+footer.app a:hover { text-decoration: underline; }
+
+/* Action buttons inside the Actions card. Visual language matches
+   <tm-state-buttons> / <tm-mode-buttons> so the three control cards
+   read as a single rhythm of full-width stacked buttons. */
+button.action-btn {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+button.action-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+button.action-btn.danger { color: var(--down); border-color: color-mix(in srgb, var(--down) 35%, var(--border)); }
+button.action-btn.danger:hover { background: var(--down); color: white; border-color: var(--down); }
+button.action-btn:disabled { opacity: 0.4; cursor: not-allowed; background: var(--surface); color: var(--text); border-color: var(--border); }
+
+/* Subtle inset note panel beneath the buttons in State / Mode cards. */
+.card-note {
+  margin-top: 4px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 14%, var(--border));
+  font-size: 12px; line-height: 1.4;
+  color: var(--muted, color-mix(in srgb, currentColor 65%, transparent));
+}
+.card-note em { font-style: normal; font-weight: 600; color: inherit; opacity: 0.95; }
