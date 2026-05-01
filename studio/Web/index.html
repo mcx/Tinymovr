@@ -1,13 +1,15 @@
 <!doctype html>
 <!--
 ================================================================================
-  Tinymovr Web Dashboard
+  Motionlayer Studio · Web edition
 ================================================================================
 
-  A self-contained Web Serial dashboard for Tinymovr servo drives. Built with
-  Vite + vite-plugin-singlefile so authoring uses real ES modules and CSS,
-  while `npm run build` emits one inlined HTML file suitable for static
-  hosting (e.g. GitHub Pages).
+  A self-contained Web Serial dashboard for Tinymovr servo drives — the
+  in-browser counterpart to the desktop Motionlayer Studio (the Python
+  package historically distributed as `tinymovr`). Built with Vite +
+  vite-plugin-singlefile so authoring uses real ES modules and CSS, while
+  `npm run build` emits one inlined HTML file suitable for static hosting
+  (e.g. GitHub Pages).
 
   Architecture overview (in-browser, zero runtime dependencies):
 
@@ -25,15 +27,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tinymovr Web Dashboard</title>
+<title>Motionlayer Studio</title>
 </head>
 <body>
 
 <div class="page">
 
   <header class="app">
-    <h1>Tinymovr</h1>
-    <span class="brand-sub">Web Dashboard</span>
+    <!-- Motionlayer wordmark + product name. The logo image already
+         contains "Motionlayer", so the H1 carries only the product
+         ("Studio"); the small subtitle disambiguates this from the
+         desktop edition. Two image variants ship and CSS reveals the
+         one that fits the active [data-theme]. -->
+    <a class="brand-logo" href="https://motionlayer.com" target="_blank" rel="noreferrer"
+       aria-label="Motionlayer"></a>
+    <h1>Studio</h1>
+    <span class="brand-sub">Web</span>
     <span class="spacer"></span>
     <div class="conn-row">
       <span id="status" class="status-pill" data-state="disconnected">
@@ -53,6 +62,15 @@
       <select id="device-picker" disabled title="Discovered devices">
         <option value="">— Device —</option>
       </select>
+      <button id="fleet" class="icon-btn" disabled title="Show all devices (fleet view)" aria-label="Show all devices">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3"  y="3"  width="7" height="7" rx="1.5"/>
+          <rect x="14" y="3"  width="7" height="7" rx="1.5"/>
+          <rect x="3"  y="14" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+        </svg>
+      </button>
       <span id="telemetry" class="telemetry" title="Live link telemetry (bytes / frames / heartbeats)" hidden>
         rx <span class="num" id="telemetry-bytes">0</span>B
         · <span class="num" id="telemetry-frames">0</span>f
@@ -67,7 +85,7 @@
     <strong>Web Serial not available.</strong>
     This dashboard needs a Chromium-based browser (Chrome, Edge or Opera) and an
     slcan-compatible USB-CAN adapter (e.g. CANable / candleLight in slcan firmware).
-    On other browsers, please use the desktop Tinymovr Studio:
+    On other browsers, please use the desktop edition of Motionlayer Studio:
     <code>pip install tinymovr</code>.
   </div>
 
@@ -86,6 +104,12 @@
     </div>
 
     <div id="device-view" hidden>
+      <!-- Calibration banner: guided UX for the CALIBRATE → IDLE round
+           trip. Hidden by default; the orchestrator in app/calibration.js
+           drives it through running / success / error / timeout phases
+           the moment the user clicks CALIBRATE on the State card. -->
+      <tm-cal-banner id="cal-banner" hidden></tm-cal-banner>
+
       <!-- Plot host: full-width, dedicated card that appears when the
            user clicks any sparkline on the page. Single shared plot —
            clicking another sparkline swaps the metric in-place. -->
@@ -125,6 +149,13 @@
            one-shot triggers (save / reset / erase). -->
       <section class="grid-controls" style="margin-bottom: 16px;">
         <dash-card title="State">
+          <!-- Persistent "Calibrated / Not calibrated" indicator. Sits
+               above the State buttons so a first-time user sees the
+               status next to the CALIBRATE option, and so a returning
+               user gets ongoing confirmation that the device is ready
+               for CL_CONTROL even after the calibration banner is
+               dismissed. Driven by the slow poll of `calibrated`. -->
+          <div id="cal-status" class="cal-status" hidden></div>
           <tm-state-buttons id="ctl-state"></tm-state-buttons>
         </dash-card>
         <dash-card title="Mode">
@@ -177,7 +208,7 @@
   </div>
 
   <footer class="app">
-    <span>Tinymovr Web Dashboard · slcan / WebSerial</span>
+    <span>Motionlayer Studio · Web · slcan / WebSerial</span>
     <span>
       <a href="https://github.com/tinymovr/Tinymovr" target="_blank" rel="noreferrer">GitHub</a> ·
       <a href="https://tinymovr.readthedocs.io" target="_blank" rel="noreferrer">Docs</a>

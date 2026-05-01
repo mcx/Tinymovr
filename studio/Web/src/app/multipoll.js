@@ -140,13 +140,18 @@ function addTile(dev) {
   addTask(scheduler, 'fast', client, 'controller.mode',
           v => { tile.mode = modeOpts[v] || String(v); });
 
-  // Slow group — 1 Hz, error bitfields ORed into a single ok/!ok dot.
+  // Slow group — 1 Hz, error bitfields ORed into a single ok/!ok dot,
+  // plus the firmware's aggregate `calibrated` flag (motor + active sensor)
+  // so the tri-state status dot can distinguish "needs calibration" (blue)
+  // from "ready to drive" (green) without making the user open the tile.
   addTask(scheduler, 'slow', client, 'errors',
           v => { entry.errs.sys = +v || 0; updateOk(entry); });
   addTask(scheduler, 'slow', client, 'controller.errors',
           v => { entry.errs.ctrl = +v || 0; updateOk(entry); });
   addTask(scheduler, 'slow', client, 'motor.errors',
           v => { entry.errs.motor = +v || 0; updateOk(entry); });
+  addTask(scheduler, 'slow', client, 'calibrated',
+          v => { tile.calibrated = !!v; });
 }
 
 function removeTile(nodeId) {

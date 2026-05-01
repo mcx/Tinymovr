@@ -17,6 +17,12 @@ class DeviceTile extends Base {
     vel: NaN,
     iq: NaN,
     ok: true,
+    // null = unknown (no reading yet); false = needs calibration; true = calibrated.
+    // The tile dot uses a tri-state tone derived from (ok, calibrated):
+    //   bad  — any error bit set
+    //   info — no errors but firmware reports !calibrated
+    //   good — no errors and calibrated (or unknown, until the first poll)
+    calibrated: null,
     connecting: true,
   };
 
@@ -61,14 +67,13 @@ class DeviceTile extends Base {
         .spacer { flex: 1; }
         .dot {
           width: 10px; height: 10px; border-radius: 999px;
-          background: var(--good);
-          box-shadow: 0 0 0 3px color-mix(in srgb, var(--good) 18%, transparent);
+          background: var(--tone, var(--good));
+          box-shadow: 0 0 0 3px color-mix(in srgb, var(--tone, var(--good)) 18%, transparent);
           transition: background 0.15s, box-shadow 0.15s;
         }
-        .dot[data-bad] {
-          background: var(--down);
-          box-shadow: 0 0 0 3px color-mix(in srgb, var(--down) 22%, transparent);
-        }
+        .dot[data-tone="good"] { --tone: var(--good); }
+        .dot[data-tone="info"] { --tone: var(--accent); }
+        .dot[data-tone="bad"]  { --tone: var(--down); }
         .pills {
           display: flex; gap: 6px;
           margin-bottom: 14px;
@@ -168,14 +173,29 @@ class DeviceTile extends Base {
     r.pos.textContent = this._fmt(s.pos, 2);
     r.vel.textContent = this._fmt(s.vel, 2);
     r.iq.textContent  = this._fmt(s.iq, 3);
-    r.dot.toggleAttribute('data-bad', !s.ok);
-    r.dot.title = s.ok ? 'No errors' : 'Errors active';
+    // Tri-state tone: errors dominate, otherwise an uncalibrated device is
+    // surfaced in info-blue. `calibrated === null` (no reading yet) is
+    // intentionally treated as good so freshly added tiles don't briefly
+    // flash blue before the first slow-poll cycle resolves.
+    let tone, title;
+    if (!s.ok) {
+      tone = 'bad';
+      title = 'Errors active';
+    } else if (s.calibrated === false) {
+      tone = 'info';
+      title = 'No errors · Not calibrated';
+    } else {
+      tone = 'good';
+      title = s.calibrated === true ? 'No errors · Calibrated' : 'No errors';
+    }
+    r.dot.dataset.tone = tone;
+    r.dot.title = title;
     this.classList.toggle('stale', !!s.connecting);
     this.setAttribute('aria-label',
       s.nodeId == null ? 'Device tile' : `Inspect node ${s.nodeId}`);
   }
 }
 
-['nodeId', 'version', 'state', 'mode', 'pos', 'vel', 'iq', 'ok', 'connecting']
+['nodeId', 'version', 'state', 'mode', 'pos', 'vel', 'iq', 'ok', 'calibrated', 'connecting']
   .forEach(k => prop(DeviceTile, k));
 customElements.define('tm-device-tile', DeviceTile);

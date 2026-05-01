@@ -13,8 +13,9 @@ import { AvlosClient } from '../runtime/avlos-client.js';
 import { HEARTBEAT_BASE, HEARTBEAT_MASK } from '../runtime/can-id.js';
 import { bindStaticControls } from './controls.js';
 import { buildExplorer } from './explorer.js';
-import { startPolling } from './polling.js';
+import { startPolling, clearCalStatus } from './polling.js';
 import { startMultiPoll, stopMultiPoll } from './multipoll.js';
+import * as calibration from './calibration.js';
 
 // Sentinel value used by the picker to switch into the fleet tile view.
 const ALL = 'all';
@@ -149,6 +150,8 @@ export async function tryAutoReconnect() {
 
 export function teardown() {
   stopMultiPoll();
+  calibration.reset();
+  clearCalStatus();
   if (state.scheduler) state.scheduler.stop();
   if (state.discovery) state.discovery.destroy();
   if (state.client) state.client.destroy();
@@ -170,6 +173,8 @@ export function teardown() {
   els.bitrate.disabled = false;
   els.picker.disabled = true;
   els.picker.innerHTML = '<option value="">— Device —</option>';
+  els.fleet.disabled = true;
+  els.fleet.dataset.active = 'false';
   els.telemetry.hidden = true;
   els.view.hidden = true;
   els.empty.hidden = false;
@@ -182,6 +187,9 @@ export function updatePicker() {
   if (!state.discovery) return;
   const list = state.discovery.snapshot();
   els.picker.disabled = list.length === 0;
+  // The fleet button mirrors the picker's enabled state — pointless
+  // (and confusing) to "Show all devices" when no devices are visible.
+  els.fleet.disabled = list.length === 0;
   const prev = els.picker.value;
   if (list.length === 0) {
     els.picker.innerHTML = '<option value="">(no devices)</option>';
@@ -226,6 +234,9 @@ export function updatePicker() {
 
 export function onPickerChange() {
   const value = els.picker.value;
+  // Keep the fleet button visually in sync with the picker selection,
+  // independent of which control the user used to switch view.
+  els.fleet.dataset.active = value === ALL ? 'true' : 'false';
   if (value === ALL) return enterFleetMode();
   const nodeId = parseInt(value, 10);
   if (Number.isNaN(nodeId)) return focusDevice(null);
@@ -234,6 +245,8 @@ export function onPickerChange() {
 
 function enterFleetMode() {
   // Tear down any single-device polling that was running.
+  calibration.reset();
+  clearCalStatus();
   if (state.client) { state.client.destroy(); state.client = null; }
   if (state.scheduler) { state.scheduler.stop(); state.scheduler = null; }
   state.focusedNodeId = null;
@@ -254,6 +267,12 @@ export function focusDevice(nodeId) {
   if (state.scheduler) { state.scheduler.stop(); state.scheduler = null; }
   // Switching into the Inspector implies we leave fleet view.
   stopMultiPoll();
+  // Drop any stale calibration UI from the previously focused device.
+  // The slow-poll on the new client will repopulate the indicator within
+  // ~500 ms; hiding here avoids a brief mismatch between the State card
+  // header and the device just switched into.
+  calibration.reset();
+  clearCalStatus();
   els.tileView.hidden = true;
   state.focusedNodeId = nodeId;
   state.buffers = {};

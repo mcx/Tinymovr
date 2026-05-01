@@ -7,6 +7,7 @@ import { state } from './connect.js';
 import { findEp } from './controls.js';
 import { HEALTH_CHANNELS } from './health.js';
 import { PollScheduler } from '../runtime/scheduler.js';
+import * as calibration from './calibration.js';
 
 // Sample buffers store parallel `{ts, v}` arrays so the expanded plot
 // view can window by wall-clock time. The buffer cap is generous —
@@ -111,6 +112,7 @@ export function startPolling(client) {
         const ep = findEp(client, 'controller.state');
         const opt = ep?.options?.[v];
         if (opt) els.ctlState.value = opt;
+        if (opt) calibration.observeState(opt);
       },
     },
     {
@@ -126,9 +128,16 @@ export function startPolling(client) {
         }
       },
     },
+    {
+      paths: ['calibrated'],
+      apply: v => renderCalStatus(!!v),
+    },
     ...HEALTH_CHANNELS.map(ch => ({
       paths: [ch.path],
-      apply: v => els.health.setValue(ch.key, v),
+      apply: v => {
+        els.health.setValue(ch.key, v);
+        calibration.observeErrors(ch.key, v);
+      },
     })),
   ];
 
@@ -136,6 +145,43 @@ export function startPolling(client) {
   for (const t of slowReads) registerPoll(client, sched, 'slow', t);
 
   sched.start();
+}
+
+// Renders the persistent "Calibrated / Not calibrated" pill at the top
+// of the State card. Kept here (rather than in calibration.js) because
+// it's a passive readout of the firmware's `calibrated` flag, independent
+// of the CALIBRATE-button-driven banner state machine.
+let _calStatusLast = null;
+export function renderCalStatus(calibrated) {
+  const el = els.calStatus;
+  if (!el) return;
+  if (calibrated === null || calibrated === undefined) {
+    el.hidden = true;
+    _calStatusLast = null;
+    return;
+  }
+  const flag = !!calibrated;
+  if (_calStatusLast === flag) return;
+  _calStatusLast = flag;
+  el.hidden = false;
+  el.dataset.tone = flag ? 'good' : 'warn';
+  const checkSvg = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none"
+      stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/></svg>`;
+  const alertSvg = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none"
+      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3 L22 20 L2 20 Z"/>
+      <line x1="12" y1="10" x2="12" y2="14"/>
+      <circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>`;
+  el.innerHTML = flag
+    ? `<div class="row">${checkSvg}<span>Calibrated</span></div>`
+    : `<div class="row">${alertSvg}<span>Not calibrated</span></div>`
+      + `<div class="hint">Click <strong>CALIBRATE</strong> below to set up the motor and sensor.</div>`;
+}
+
+export function clearCalStatus() {
+  _calStatusLast = null;
+  if (els.calStatus) els.calStatus.hidden = true;
 }
 
 export function registerPoll(client, sched, kind, task) {

@@ -4,6 +4,7 @@
 import { els, setListener } from './els.js';
 import { state } from './connect.js';
 import { HEALTH_CHANNELS } from './health.js';
+import * as calibration from './calibration.js';
 
 export function findEp(client, path) {
   return client.byPath.get(path) || null;
@@ -16,8 +17,18 @@ export function bindStaticControls(client) {
   els.ctlState.options = stateEp?.options || ['IDLE', 'CALIBRATE', 'CL_CONTROL'];
   els.ctlMode.options  = modeEp?.options  || ['CURRENT', 'VELOCITY', 'POSITION'];
 
+  // Bind the calibration banner to this client up-front so the orchestrator
+  // can start tracking error baselines on the very first poll cycle, before
+  // the user clicks CALIBRATE.
+  calibration.bindClient(client);
+
   setListener(els.ctlState, 'change', async e => {
     if (!stateEp) return;
+    // The State card is the user's normal way to invoke calibration —
+    // clicking CALIBRATE here is equivalent to calling controller.calibrate.
+    // Arm the banner *before* the wire-side set so the UI feels instant
+    // (no ~10 s of dead air).
+    if (e.detail === 'CALIBRATE') calibration.arm();
     try { await client.set('controller.state', stateEp.options.indexOf(e.detail)); }
     catch (err) { console.warn(err); }
   });

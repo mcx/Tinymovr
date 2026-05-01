@@ -1,12 +1,15 @@
-# Tinymovr Web Dashboard
+# Motionlayer Studio · Web
 
-A self-contained, single-file HTML dashboard that talks to one or more
-Tinymovr servo drives over a WebSerial slcan adapter. Hostable on
-GitHub Pages or any static HTTP server.
+The browser edition of [Motionlayer Studio][studio]: a self-contained,
+single-file HTML dashboard that talks to one or more Tinymovr servo drives
+over a WebSerial slcan adapter. Hostable on GitHub Pages or any static HTTP
+server, ships as one inlined `dashboard.html`.
+
+[studio]: ../Python
 
 > **Browser support.** Web Serial is currently Chrome / Edge / Opera only.
-> Firefox and Safari are not supported. For those, use the desktop Tinymovr
-> Studio (`pip install tinymovr`).
+> Firefox and Safari are not supported. For those, install the desktop
+> edition of Motionlayer Studio (`pip install tinymovr`).
 
 ## Hardware
 

@@ -28,6 +28,16 @@ export function boot() {
   });
 
   els.picker.addEventListener('change', onPickerChange);
+
+  // Quick-switch: clicking the fleet button is equivalent to picking
+  // "All devices" in the dropdown. Routed through onPickerChange so the
+  // single source of truth for view selection stays the picker value.
+  els.fleet.addEventListener('click', () => {
+    if (els.fleet.disabled) return;
+    els.picker.value = 'all';
+    onPickerChange();
+  });
+
   bindPlotToggles();
 
   // Tile click → set picker to that node and trigger the same

@@ -1,5 +1,5 @@
 """
-Tinymovr Web Dashboard spec generator.
+Motionlayer Studio (Web edition) spec generator.
 Copyright 2020-2026 MotionLayer P.C.
 
 Reads every YAML spec in ``studio/Python/tinymovr/specs/`` through the avlos

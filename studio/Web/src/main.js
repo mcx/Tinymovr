@@ -1,4 +1,4 @@
-// Tinymovr Web Dashboard entry point.
+// Motionlayer Studio (Web edition) entry point.
 // Order matters: styles first, then components register their custom
 // elements (side-effect imports), then boot() wires the page to the
 // runtime once the DOM is ready.
@@ -14,6 +14,7 @@ import './components/dash-plot.js';
 import './components/tm-state-buttons.js';
 import './components/tm-setpoint.js';
 import './components/tm-health.js';
+import './components/tm-cal-banner.js';
 import './components/tm-device-tile.js';
 import './components/tm-bus-tile.js';
 
