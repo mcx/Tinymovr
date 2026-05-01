@@ -137,6 +137,48 @@ The dashboard pauses polling automatically while a destructive action
 (calibrate, erase config) is in flight, so the device receive buffer
 isn't flooded.
 
+## Config import / export
+
+The **Spec explorer** card carries a small toolbar with **Export JSON**
+and **Import JSON** buttons.
+
+- **Export JSON** reads every endpoint tagged `meta: {export: True}`
+  in the YAML spec on the focused device, dumps them to a nested JSON
+  document keyed by endpoint path, and downloads it as
+  `tinymovr-config-node<id>-<spec>-<ts>.json`. A small `_meta` block
+  (spec version, hash, node id, timestamp) is added at the root for
+  traceability.
+- **Import JSON** picks a file, asks for confirmation, and applies
+  every leaf whose path matches a settable, export-tagged endpoint on
+  the device. Each value is **read back immediately after writing**
+  and compared against the intended value (with float tolerance) so
+  silent firmware-side clamping or out-of-range rejection surfaces in
+  the report. The headline number in the status line is the verified
+  count — settings actually holding their target value on the device,
+  not frames sent on the wire. Unknown paths, write errors, and
+  mismatches are counted in the inline status and logged to the
+  console with full diagnostics.
+
+The wire format is **byte-for-byte compatible with the desktop edition
+of Motionlayer Studio (Python)**: a JSON exported in the browser can
+be loaded with `tinymovr` GUI (File → Import) or
+`tinymovr.config.import_config(...)`, and vice versa. Unit-bearing
+attributes round-trip as `"<num> <unit>"` strings; unitless numerics
+and enums round-trip as bare JSON numbers.
+
+What is **not** exported (matches the desktop convention):
+
+- Runtime controls — `controller.state`, `controller.mode`.
+- Comms identity — `comms.can.id`, `comms.can.rate` (importing a
+  mismatched bitrate would kill the bus).
+- Setpoints and any other endpoint with `meta.jog_step` or without an
+  `export: True` tag.
+
+Polling is paused for the duration of both export and import so the
+adapter receive buffer doesn't get flooded. The import does not
+auto-`IDLE` the controller — for live-tuning sessions, switch to IDLE
+manually first.
+
 ## Out of scope
 
 - DFU / firmware update flow (the DFU specs are still embedded for

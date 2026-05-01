@@ -50,6 +50,10 @@ export const els = {
   plot:          $('#plot'),
   explorerSub:   $('#explorer-sub'),
   explorerTree:  $('#explorer-tree'),
+  cfgExport:     $('#cfg-export'),
+  cfgImport:     $('#cfg-import'),
+  cfgImportFile: $('#cfg-import-file'),
+  cfgStatus:     $('#cfg-status'),
 };
 
 export function setStatus(s, text) {

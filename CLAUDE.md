@@ -131,54 +131,7 @@ Use this decision tree to find the right documentation:
 
 **No debug code here** - see SAFETY.md for error details and TESTING.md for debugging strategies.
 
-### Task: Update CHANGELOG
-
-**File**: [CHANGELOG.md](CHANGELOG.md) at repo root.
-
-**Format**: [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) + [SemVer](https://semver.org/).
-
-**When to add an entry** (every PR that affects users):
-- New feature, behavior change, deprecation, removal, bug fix, or security fix
-- New API endpoint, new sensor support, new hardware support, new tool/CLI flag
-- Breaking change in firmware, Python client, or protocol
-- Anything end users would want to know about when upgrading
-
-**When NOT to add an entry**:
-- Internal refactors with no user-visible effect
-- Test-only changes
-- CI/build system tweaks invisible to users
-- Documentation-only changes (unless they document a new user-facing capability)
-
-**Workflow per PR**:
-1. Open `CHANGELOG.md`.
-2. Under `## [Unreleased]`, add a one-line entry under the correct subsection:
-   - `### Added` - new features / capabilities
-   - `### Changed` - changes to existing behavior
-   - `### Deprecated` - soon-to-be-removed features
-   - `### Removed` - removed features
-   - `### Fixed` - bug fixes
-   - `### Security` - vulnerability fixes
-3. Create the subsection if it does not exist yet under `[Unreleased]`.
-4. Write entries in past tense, user-facing language. Reference issue/PR numbers when useful: `Fixed homing offset calculation when MA600 sensor is used (#123).`
-5. One line per entry. If more detail is needed, link to the GitHub Release notes or a doc page.
-
-**At release time** (when tagging a new version):
-1. Rename `## [Unreleased]` to `## [X.Y.Z] - YYYY-MM-DD`.
-2. Insert a new empty `## [Unreleased]` block at the top with no subsections.
-3. Update compare links at the bottom of the file:
-   - `[Unreleased]: .../compare/X.Y.Z...HEAD`
-   - `[X.Y.Z]: .../compare/<previous-version>...X.Y.Z`
-4. Tag the release in git using the unified version (no `fw-*` or `studio-*` prefixes; those are obsolete).
-
-**Versioning rules** (SemVer for the project as a whole):
-- **MAJOR** (X) - breaking changes to firmware behavior, protocol, or Python client API.
-- **MINOR** (Y) - backward-compatible new features, hardware support, sensor support.
-- **PATCH** (Z) - backward-compatible bug fixes only.
-
-**Common pitfalls**:
-- Do not edit existing released sections (`[2.6.1]`, `[2.6.0]`, etc.) - they are immutable history.
-- Do not add entries directly to a versioned section; always go through `[Unreleased]`.
-- Do not use legacy per-component tags (`fw-v*`, `studio-v*`); the project uses unified versioning.
+## Critical Gotchas
 
 ### Firmware Gotchas
 
@@ -360,7 +313,6 @@ avlos from file <spec_file>.yaml
 | **TESTING.md** | Testing practices | Writing tests, debugging test failures |
 | **AVLOS_GUIDE.md** | Protocol modification | Adding/modifying API endpoints |
 | **CONTRIBUTING.md** | Contribution workflow | Setting up environment, submitting PRs |
-| **CHANGELOG.md** | Release history and pending changes | Recording user-facing changes per PR; preparing releases |
 | **CLAUDE.md** (this) | Navigation hub | Finding the right documentation |
 
 ## External References

@@ -163,10 +163,22 @@
         </dash-card>
         <dash-card title="Actions">
           <div style="display:flex; flex-direction:column; gap:6px;">
-            <button id="act-save"  class="action-btn">Save config to NVM</button>
-            <button id="act-reset" class="action-btn">Reset device</button>
+            <!-- "Working config" group: snapshot the live settings to
+                 NVM, to a file, or load them back. The wire format of
+                 Export / Import is byte-for-byte compatible with the
+                 desktop `tinymovr` Studio (Python) — same JSON used by
+                 File → Import / Export there. -->
+            <button id="act-save"   class="action-btn">Save config to NVM</button>
+            <button id="cfg-export" class="action-btn" disabled>Export config to file…</button>
+            <button id="cfg-import" class="action-btn" disabled>Import config from file…</button>
+            <input id="cfg-import-file" type="file" accept=".json,application/json" hidden>
+            <button id="act-reset"  class="action-btn">Reset device</button>
             <hr class="card-divider">
-            <button id="act-erase" class="action-btn danger">Erase config &amp; reset</button>
+            <button id="act-erase"  class="action-btn danger">Erase config &amp; reset</button>
+            <!-- Inline status for transient feedback on Export / Import.
+                 Hidden when idle; tone-coloured (good / warn / err) when
+                 something just finished. -->
+            <div id="cfg-status" class="actions-note" hidden></div>
           </div>
         </dash-card>
       </section>

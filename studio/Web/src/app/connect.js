@@ -15,6 +15,7 @@ import { bindStaticControls } from './controls.js';
 import { buildExplorer } from './explorer.js';
 import { startPolling, clearCalStatus } from './polling.js';
 import { startMultiPoll, stopMultiPoll } from './multipoll.js';
+import { bindConfigToolbar, clearConfigToolbar } from './config-toolbar.js';
 import * as calibration from './calibration.js';
 
 // Sentinel value used by the picker to switch into the fleet tile view.
@@ -152,6 +153,7 @@ export function teardown() {
   stopMultiPoll();
   calibration.reset();
   clearCalStatus();
+  clearConfigToolbar();
   if (state.scheduler) state.scheduler.stop();
   if (state.discovery) state.discovery.destroy();
   if (state.client) state.client.destroy();
@@ -247,6 +249,7 @@ function enterFleetMode() {
   // Tear down any single-device polling that was running.
   calibration.reset();
   clearCalStatus();
+  clearConfigToolbar();
   if (state.client) { state.client.destroy(); state.client = null; }
   if (state.scheduler) { state.scheduler.stop(); state.scheduler = null; }
   state.focusedNodeId = null;
@@ -298,5 +301,6 @@ export function focusDevice(nodeId) {
   els.empty.hidden = true;
   bindStaticControls(state.client);
   buildExplorer(state.client);
+  bindConfigToolbar(state.client);
   startPolling(state.client);
 }
