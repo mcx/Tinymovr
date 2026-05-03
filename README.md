@@ -1,7 +1,28 @@
+> ## Notice — Source moved private as of v3.0.0
+>
+> Active source development for Tinymovr has moved to a **private repository**
+> as of v3.0.0. This public repository continues to host:
+>
+> - **Documentation** in [`docs/`](docs/), built and published at
+>   <https://tinymovr.readthedocs.io>.
+> - **Releases** with attached binaries (firmware, Python wheel, Studio Web)
+>   on the [Releases page](https://github.com/motionlayer/Tinymovr/releases).
+>
+> The source code in this repository reflects the state at v3.0.0 and is
+> **no longer updated**. To use the latest firmware or Studio, download the
+> latest release artifacts.
+>
+> For support: [Discord](https://discord.gg/vNvmpfthug) ·
+> [Discussions](https://github.com/motionlayer/Tinymovr/discussions) ·
+> [Issues](https://github.com/motionlayer/Tinymovr/issues) ·
+> [tinymovr.com](https://tinymovr.com)
+
+---
+
 ![FW Check Build](https://github.com/yconst/tinymovr/workflows/Tinymovr%20Firmware%20Check%2FBuild/badge.svg)
 ![Studio Lint Test](https://github.com/yconst/tinymovr/workflows/Tinymovr%20Studio%20Lint%2FTest/badge.svg)
 ![Docs Build](https://github.com/yconst/tinymovr/workflows/Tinymovr%20Docs%20Build/badge.svg)
-[![Discord](https://img.shields.io/discord/742400176664084535)](https://discord.gg/UnmfuVzKuQ)
+[![Discord](https://img.shields.io/discord/742400176664084535)](https://discord.gg/vNvmpfthug)
 
 [Tinymovr is an affordable motor controller](https://tinymovr.com) with integrated encoder and CAN bus for precise control of 3-phase brushless motors (PMSMs). 
 

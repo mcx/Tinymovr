@@ -1,3 +1,17 @@
+> ## Notice — Source moved private as of v3.0.0
+>
+> The Python source in this directory reflects the state at v3.0.0 and
+> is **no longer updated**. Install the latest version (now branded as
+> Motionlayer Studio Desktop) from PyPI:
+>
+> ```bash
+> pip install -U tinymovr
+> ```
+>
+> Documentation: <https://tinymovr.readthedocs.io>
+
+---
+
 ![Studio Lint Test](https://github.com/yconst/tinymovr/workflows/Tinymovr%20Studio%20Lint%2FTest/badge.svg)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
