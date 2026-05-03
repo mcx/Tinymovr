@@ -1,0 +1,20 @@
+{
+  "name": "tinymovr-web-dashboard",
+  "version": "0.1.0",
+  "description": "Self-contained, single-file Web Serial dashboard for Tinymovr servo drives.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "specs": "python3 build_specs.py",
+    "dev": "npm run specs && vite",
+    "build": "npm run specs && vite build && cp dist/index.html dashboard.html",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^8.0.10",
+    "vite-plugin-singlefile": "^2.3.3"
+  },
+  "dependencies": {
+    "@fontsource/anonymous-pro": "^5.2.8"
+  }
+}
