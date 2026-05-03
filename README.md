@@ -12,6 +12,21 @@
 > **no longer updated**. To use the latest firmware or Studio, download the
 > latest release artifacts.
 >
+> ### License
+>
+> The source in this repository reflects the state at v3.0.0 and remains
+> available under its original per-directory licenses:
+>
+> - **Firmware** (`firmware/`) — MIT
+> - **Hardware** (`hardware/`) — MIT
+> - **Documentation** (`docs/`) — MIT
+> - **Studio Python** and the overall project — GPLv3
+>   (see root `LICENSE.txt` and `studio/LICENSE`)
+>
+> Those terms remain in effect for the code as of v3.0.0. Releases from
+> v3.1 onward are distributed by MotionLayer P.C. as proprietary binaries
+> built from a private codebase; their source is not published.
+>
 > For support: [Discord](https://discord.gg/vNvmpfthug) ·
 > [Discussions](https://github.com/motionlayer/Tinymovr/discussions) ·
 > [Issues](https://github.com/motionlayer/Tinymovr/issues) ·
