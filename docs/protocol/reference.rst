@@ -902,6 +902,8 @@ Options:
 
 - AMT22
 
+- MA600
+
 sensors.setup.external_spi.rate
 -------------------------------------------------------------------
 
@@ -1127,10 +1129,28 @@ The filtered velocity estimate in the commutation sensor reference frame.
 
 
 
-traj_planner.max_accel
+sensors.select.transform_init.mode
 -------------------------------------------------------------------
 
 ID: 80
+
+Type: uint8
+
+
+
+Position-to-commutation transform initialization mode. STANDARD disables dual-sensor transform derivation; the position sensor drives closed-loop control. DIFFERENTIAL derives a commutation-to-shaft transform from both sensors during calibration and origin alignment, then uses commutation-only tracking at runtime.
+
+
+Options: 
+
+- STANDARD
+
+- DIFFERENTIAL
+
+traj_planner.max_accel
+-------------------------------------------------------------------
+
+ID: 81
 
 Type: float
 
@@ -1143,7 +1163,7 @@ The max allowed acceleration of the generated trajectory.
 traj_planner.max_decel
 -------------------------------------------------------------------
 
-ID: 81
+ID: 82
 
 Type: float
 
@@ -1156,7 +1176,7 @@ The max allowed deceleration of the generated trajectory.
 traj_planner.max_vel
 -------------------------------------------------------------------
 
-ID: 82
+ID: 83
 
 Type: float
 
@@ -1169,7 +1189,7 @@ The max allowed cruise velocity of the generated trajectory.
 traj_planner.t_accel
 -------------------------------------------------------------------
 
-ID: 83
+ID: 84
 
 Type: float
 
@@ -1182,7 +1202,7 @@ In time mode, the acceleration time of the generated trajectory.
 traj_planner.t_decel
 -------------------------------------------------------------------
 
-ID: 84
+ID: 85
 
 Type: float
 
@@ -1195,7 +1215,7 @@ In time mode, the deceleration time of the generated trajectory.
 traj_planner.t_total
 -------------------------------------------------------------------
 
-ID: 85
+ID: 86
 
 Type: float
 
@@ -1208,7 +1228,7 @@ In time mode, the total time of the generated trajectory.
 move_to(float pos_setpoint) -> void
 --------------------------------------------------------------------------------------------
 
-ID: 86
+ID: 87
 
 Return Type: void
 
@@ -1219,7 +1239,7 @@ Move to target position in the user reference frame respecting velocity and acce
 move_to_tlimit(float pos_setpoint) -> void
 --------------------------------------------------------------------------------------------
 
-ID: 87
+ID: 88
 
 Return Type: void
 
@@ -1230,7 +1250,7 @@ Move to target position in the user reference frame respecting time limits for e
 traj_planner.errors
 -------------------------------------------------------------------
 
-ID: 88
+ID: 89
 
 Type: uint8
 
@@ -1247,7 +1267,7 @@ Flags:
 homing.velocity
 -------------------------------------------------------------------
 
-ID: 89
+ID: 90
 
 Type: float
 
@@ -1260,7 +1280,7 @@ The velocity at which the motor performs homing.
 homing.max_homing_t
 -------------------------------------------------------------------
 
-ID: 90
+ID: 91
 
 Type: float
 
@@ -1273,7 +1293,7 @@ The maximum time the motor is allowed to travel before homing times out and abor
 homing.retract_dist
 -------------------------------------------------------------------
 
-ID: 91
+ID: 92
 
 Type: float
 
@@ -1286,7 +1306,7 @@ The retraction distance the motor travels after the endstop has been found.
 homing.warnings
 -------------------------------------------------------------------
 
-ID: 92
+ID: 93
 
 Type: uint8
 
@@ -1301,7 +1321,7 @@ Flags:
 homing.stall_detect.velocity
 -------------------------------------------------------------------
 
-ID: 93
+ID: 94
 
 Type: float
 
@@ -1314,7 +1334,7 @@ The velocity below which (and together with `stall_detect.delta_pos`) stall dete
 homing.stall_detect.delta_pos
 -------------------------------------------------------------------
 
-ID: 94
+ID: 95
 
 Type: float
 
@@ -1327,7 +1347,7 @@ The velocity below which (and together with `stall_detect.delta_pos`) stall dete
 homing.stall_detect.t
 -------------------------------------------------------------------
 
-ID: 95
+ID: 96
 
 Type: float
 
@@ -1340,7 +1360,7 @@ The time to remain in stall detection mode before the motor is considered stalle
 home() -> void
 --------------------------------------------------------------------------------------------
 
-ID: 96
+ID: 97
 
 Return Type: void
 
@@ -1351,7 +1371,7 @@ Perform the homing operation.
 watchdog.enabled
 -------------------------------------------------------------------
 
-ID: 97
+ID: 98
 
 Type: bool
 
@@ -1364,7 +1384,7 @@ Whether the watchdog is enabled or not.
 watchdog.triggered
 -------------------------------------------------------------------
 
-ID: 98
+ID: 99
 
 Type: bool
 
@@ -1377,7 +1397,7 @@ Whether the watchdog has been triggered or not.
 watchdog.timeout
 -------------------------------------------------------------------
 
-ID: 99
+ID: 100
 
 Type: float
 

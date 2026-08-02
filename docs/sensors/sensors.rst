@@ -199,6 +199,18 @@ Sensor Selection
 Sensor selection can be performed for positioning and for commutation. In both cases, the selection should be performed after hardware setup and any sensor setup has been fully completed, namely if using external sensors, the selection of the sensor type. The selection is among ONBOARD, EXTERNAL_SPI and HALL sensors. Once selection is complete, the Tinymovr needs to undergo calibration.
 
 
+Eccentricity Compensation
+=========================
+
+During calibration, Tinymovr builds rectification lookup tables (ECC) for magnetic encoders. These tables correct encoder nonlinearity relative to the motor rotor over one full rotor revolution. Hall sensors do not use ECC.
+
+When the commutation and position sensors are the same magnetic encoder, a single ECC pass is performed. When they differ, the commutation sensor always receives ECC (if it is a magnetic encoder). By default, the position sensor does **not** receive ECC in this dual-sensor case.
+
+This default applies when ``TM_SKIP_POSITION_ECC_WHEN_SEPARATE_SENSOR`` is enabled in ``firmware/src/config.h`` (currently ``1``). The position sensor is still marked calibrated using an identity rectification table, so ``tm.calibrated`` can succeed without a second rotor-referenced ECC sweep on the position encoder. This is appropriate when the position encoder is on a geared output or otherwise should not be corrected using rotor-period eccentricity data.
+
+To restore the previous behavior (ECC on both magnetic sensors), set ``TM_SKIP_POSITION_ECC_WHEN_SEPARATE_SENSOR`` to ``0`` in ``config.h``, or pass ``-DTM_SKIP_POSITION_ECC_WHEN_SEPARATE_SENSOR=0`` via ``CFLAGS`` at build time.
+
+
 Examples
 ********
 
@@ -267,7 +279,7 @@ Then select the `EXTERNAL_SPI` sensor for each of the position and commutation s
     tm1.sensors.select.commutation_sensor.connection = tm1.sensors.select.commutation_sensor.connection.ONBOARD
     tm1.sensors.select.position_sensor.connection = tm1.sensors.select.position_sensor.connection.EXTERNAL_SPI
 
-At this point, you are ready to perform motor/sensor calibration. This will measure the R and L values of the motor, derive frame transforms and eccentricity compensation tables.
+At this point, you are ready to perform motor/sensor calibration. This will measure the R and L values of the motor, derive frame transforms, and apply eccentricity compensation to the onboard commutation sensor.
 
 .. code-block:: python
 
