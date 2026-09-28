@@ -8,6 +8,14 @@ Tinymovr Studio is a cross-platform GUI application, CLI application, and Python
 
 Studio requires Python 3.9 or newer.
 
+The matching wheel is also available from the
+`3.2.0 release <https://github.com/motionlayer/Tinymovr/releases/tag/3.2.0>`_.
+For the CLI/library, download it and run::
+
+    python -m pip install ./tinymovr-3.2.0-py3-none-any.whl
+
+For the browser dashboard, see :doc:`web`.
+
 Preparation
 ###########
 
@@ -20,13 +28,13 @@ This is the most straightforward method to install Tinymovr studio and have acce
 
 .. code-block:: console
 
-    pip3 install 'tinymovr[GUI]'
+    pip3 install --upgrade 'tinymovr[GUI]==3.2.0'
 
 If you don't plan to use the GUI, you can skip installing some dependencies using the following installation command instead:
 
 .. code-block:: console
 
-    pip3 install tinymovr
+    pip3 install --upgrade tinymovr==3.2.0
 
 .. code-block:: console
 
@@ -56,25 +64,13 @@ Then simply install and run Tinymovr:
 
 .. code-block:: console
 
-    pip install 'tinymovr[GUI]'
+    pip install --upgrade 'tinymovr[GUI]==3.2.0'
     tinymovr
 
-Using git clone
-###############
+Legacy source installation
+##########################
 
-.. note::
-   The master branch of the Github repository represents the state of art of development, and it may contain bugs.
-   For a stable version, especially if you are starting with the project, please consider installing Tinymovr Studio using pip as shown above.
-
-First clone the Tinymovr repo to a local directory:
-
-.. code-block:: console
-
-    git clone https://github.com/yconst/Tinymovr
-
-Then cd to the cloned repo directory and install in developer mode:
-
-.. code-block:: console
-
-    cd Tinymovr/studio/Python
-    pip3 install -e .
+The public repository contains frozen source from 3.0.0. Cloning it does not
+install Studio 3.2.0. Use the matching release package above for current firmware.
+The source-development instructions in :doc:`../develop/guide` apply to that
+legacy public source.

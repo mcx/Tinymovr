@@ -36,10 +36,10 @@ Hardware Setup
 External SPI Sensors
 ====================
 
-Tinymovr supports a number of external sensors over the SPI bus. Currently, the MPS MA7xx, the AMS AS5047 and the CUI AMT22 sensors are supported.
+Tinymovr supports a number of external sensors over the SPI bus. Currently, the MPS MA7xx and MA600, the AMS AS5047 and the CUI AMT22 sensors are supported.
 
 .. note::
-  Even though Tinymovr R5.2 has the FLEX2 port which can function as SPI, due to a hardware incompatibility this port does not implement SPI correctly. As such, external sensors are only supported on the M5.x series at the moment.
+  Tinymovr R5.2 has a FLEX2 port, but a hardware incompatibility prevents correct SPI operation. Use a supported M5.x board or R5.3 for external SPI sensors.
 
   Tinymovr R5.3 and above does not have this issue and supports external SPI sensors normally.
 
@@ -182,7 +182,7 @@ The Onboard Magnetic Sensor does not require any configuration. In this section 
 External SPI Sensor
 -------------------
 
-The External SPI Sensor requires the correct sensor type to be set before enabling it. Three sensors are currently supported, the MPS MA7xx series, the AMS AS504x series, and the CUI AMT22 series. In addition, here you can see the calibration state and sensor errors.
+The External SPI Sensor requires the correct sensor type to be set before enabling it. Four sensor types are supported: MPS MA7xx, MPS MA600, AMS AS5047, and CUI AMT22. In addition, here you can see the calibration state and sensor errors.
 
 
 Hall Effect Sensor
@@ -206,9 +206,59 @@ During calibration, Tinymovr builds rectification lookup tables (ECC) for magnet
 
 When the commutation and position sensors are the same magnetic encoder, a single ECC pass is performed. When they differ, the commutation sensor always receives ECC (if it is a magnetic encoder). By default, the position sensor does **not** receive ECC in this dual-sensor case.
 
-This default applies when ``TM_SKIP_POSITION_ECC_WHEN_SEPARATE_SENSOR`` is enabled in ``firmware/src/config.h`` (currently ``1``). The position sensor is still marked calibrated using an identity rectification table, so ``tm.calibrated`` can succeed without a second rotor-referenced ECC sweep on the position encoder. This is appropriate when the position encoder is on a geared output or otherwise should not be corrected using rotor-period eccentricity data.
+The position sensor is marked calibrated using an identity rectification table.
+This avoids applying rotor-period eccentricity correction to an encoder on a
+geared output. ECC means eccentricity compensation, not sensor error checking.
 
-To restore the previous behavior (ECC on both magnetic sensors), set ``TM_SKIP_POSITION_ECC_WHEN_SEPARATE_SENSOR`` to ``0`` in ``config.h``, or pass ``-DTM_SKIP_POSITION_ECC_WHEN_SEPARATE_SENSOR=0`` via ``CFLAGS`` at build time.
+MPS MA600 Selection
+===================
+
+With a compatible MA600 wired to the external SPI interface, select its type
+while the controller is idle, before sensor selection and calibration::
+
+    tm1.controller.idle()
+    tm1.sensors.setup.external_spi.type = tm1.sensors.setup.external_spi.type.MA600
+
+Select the position and commutation sensor connections as appropriate for your
+mechanical setup, then calibrate. Sensor type selection alone does not change
+which sensor is used for control.
+
+.. _differential-positioning:
+
+Differential (Vernier) Positioning
+==================================
+
+Firmware 3.2.0 supports ``STANDARD`` and ``DIFFERENTIAL`` transform initialization
+through ``tm1.sensors.select.transform_init.mode``. Differential mode requires a
+compatible geared pair of encoders; it is not a general substitute for a second
+position sensor. X5.1 includes this arrangement and defaults to differential
+mode. Other boards default to standard mode.
+
+For the onboard rotor encoder plus geared secondary arrangement, select the
+onboard encoder for both runtime connections. Configure the secondary's actual
+SPI sensor type first. For an MA7xx secondary, the configuration is::
+
+    tm1.controller.idle()
+    tm1.sensors.setup.external_spi.type = tm1.sensors.setup.external_spi.type.MA7XX
+    tm1.sensors.select.commutation_sensor.connection = tm1.sensors.select.commutation_sensor.connection.ONBOARD
+    tm1.sensors.select.position_sensor.connection = tm1.sensors.select.position_sensor.connection.ONBOARD
+    tm1.sensors.select.transform_init.mode = tm1.sensors.select.transform_init.mode.DIFFERENTIAL
+
+Mode changes are accepted only while idle. Calibrate after changing the setup.
+Differential calibration sweeps multiple rotor turns (six in this release),
+so allow sufficient mechanical travel and keep the mechanism clear::
+
+    tm1.controller.calibrate()
+
+Wait for calibration to finish and check ``tm1.calibrated`` and device errors
+before entering closed-loop control. After verifying the setup, return to idle
+and call ``tm1.save_config()`` to retain calibration and configuration.
+
+Calibration derives the geared transform from both encoders. On startup with
+saved calibration, the pair seeds the rotor turn; normal tracking uses the rotor
+encoder. Absolute recovery is limited to one output-shaft turn (one vernier
+cycle). Output revolutions accumulated during operation are not an unlimited
+absolute turn count across power loss.
 
 
 Examples
@@ -218,7 +268,7 @@ External AS5047 Sensor for Commutation and Positioning
 ======================================================
 
 .. note::
-  This is only supported on the Tinymovr M series, and upcoming Tinymovr R versions
+  This is supported on the Tinymovr M series and R5.3; R5.2 does not support external SPI sensors correctly.
   
 Ensure the hardware is properly connected. 
 
@@ -262,7 +312,7 @@ External AMT22 Sensor for Positioning and Onboard MA702/704 for Commutation
 ===========================================================================
 
 .. note::
-  This is only supported on the Tinymovr M series, and upcoming Tinymovr R versions
+  This is supported on the Tinymovr M series and R5.3; R5.2 does not support external SPI sensors correctly.
 
 Ensure the hardware is properly connected. 
 

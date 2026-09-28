@@ -7,16 +7,19 @@ Welcome to Tinymovr documentation!
 ========================================
 
 .. note::
-   This is the documentation for the latest stable version of the Tinymovr Firmware and Studio app. For the legacy 0.x.x documentation, check out the [legacy docs](https://tinymovr.readthedocs.io/en/attic-legacy/).
+   This documentation covers Tinymovr firmware |release| and its matching Studio release.
+   See :doc:`release-notes` for compatibility and upgrade information.
+   For firmware 0.x.x, see the `legacy documentation <https://tinymovr.readthedocs.io/en/attic-legacy/>`_.
 
 .. note::
-   In all examples, the first intance of the found motor controller is used, namely `tm1`. If working with subsequent instances, please replace with the correct index, e.g. instead of `tm1` use `tm2`, `tm3` etc.
+   In all examples, the first instance of the found motor controller is used, namely `tm1`. If working with subsequent instances, please replace with the correct index, e.g. instead of `tm1` use `tm2`, `tm3` etc.
 
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   release-notes
    quickstart
    
    hardware/overview
@@ -24,6 +27,7 @@ Welcome to Tinymovr documentation!
    
    studio/installation
    studio/usage
+   studio/web
    
    protocol/integrating
    interfaces/interfaces
