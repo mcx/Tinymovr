@@ -66,11 +66,11 @@ Prerequisites
 
    .. code-block:: bash
 
-      pip install tinymovr
+      pip install --upgrade tinymovr==3.2.0
 
 2. **Download the Firmware**:
 
-   Head to the `Tinymovr Releases Page <https://github.com/tinymovr/Tinymovr/releases/latest>`_ and download the precompiled binary of the firmware that matches your board's hardware revision. Firmware binaries follow the format: ``tinymovr<firmware_version>-<hardware_revision>.bin``. For instance, you might come across a file named ``tinymovr1.5.0-M5.1.bin``.
+   Head to the `Tinymovr Releases Page <https://github.com/motionlayer/Tinymovr/releases/tag/3.2.0>`_ and download the precompiled binary of the firmware that matches your board's hardware revision. For CAN DFU, select ``tinymovr-3.2.0-<revision>-upgrade.bin``. For example, M5.1 and M5.2 use ``tinymovr-3.2.0-M51-upgrade.bin``; X5.1 uses ``tinymovr-3.2.0-X51-upgrade.bin``. Do not use the combined bootloader/application ``-release.bin`` image for CAN DFU.
 
 Flashing the Firmware
 =====================
@@ -87,7 +87,7 @@ Flashing the Firmware
 
       tinymovr_cli
 
-   Once inside teh CLI, type the following to enter DFU Mode:
+   Once inside the CLI, type the following to enter DFU Mode:
 
    .. code-block:: python
 
@@ -95,7 +95,8 @@ Flashing the Firmware
 
    Then exit the CLI by typing ``exit``.
 
-   If you are getting an exception after this command, it means that either your Tinymovr does not come with the DFU bootloader, so you will have to :ref:`upgrade-using-activeflashlight`, or your board is already in DFU mode.
+   A communication exception alone does not identify the bootloader state. Check
+   connectivity and bootloader availability before choosing a recovery method.
 
 2. **Run the Script**:
 
@@ -103,7 +104,7 @@ Flashing the Firmware
 
    .. code-block:: bash
 
-      tinymovr_dfu --node_id=<your node id> --bin=path/to/your/downloaded/tinymovr<version>-<revision>.bin
+      tinymovr_dfu --node_id=<your node id> --bin=path/to/your/downloaded/tinymovr-3.2.0-<revision>-upgrade.bin
 
    Replace the placeholders in the path with the appropriate values based on where you've saved the .bin file and its name.
 
@@ -111,13 +112,13 @@ Flashing the Firmware
 
    .. code-block:: bash
 
-      tinymovr_dfu --node_id=<your node id> --bin=~/Downloads/tinymovr1.5.0-M5.1.bin
+      tinymovr_dfu --node_id=<your node id> --bin=~/Downloads/tinymovr-3.2.0-M51-upgrade.bin
 
    To forgo the automatic reset post-flash, append the ``--no-reset`` flag:
 
    .. code-block:: bash
 
-      tinymovr_dfu --node_id=<your node id> --bin=~/Downloads/tinymovr1.5.0-M5.1.bin --no-reset
+      tinymovr_dfu --node_id=<your node id> --bin=~/Downloads/tinymovr-3.2.0-M51-upgrade.bin --no-reset
 
 3. **Follow the Script's Prompts**:
 
@@ -127,11 +128,16 @@ Flashing the Firmware
 
    If you skipped using the ``--no-reset`` flag, the device will reboot automatically after the update. If you used the flag, you'd need to power off and on the Tinymovr by hand.
 
-   You're all set! Your Tinymovr is updated and primed for use with the fresh firmware.
+   Reconfigure and recalibrate before enabling motor control, as described below.
 
 .. note::
 
    Before updating, it's a wise move to backup your current firmware and settings. Always pore over any version-specific instructions or release notes accompanying fresh firmware updates to stay informed.
+
+The DFU bootloader reads the CAN ID from configuration slot 0. If the application
+ID was changed after later configuration saves, the DFU node ID can differ from
+the application's current node ID. Account for this when addressing the
+bootloader; do not assume a missing response means firmware is damaged.
 
 .. _can-id-preservation:
 

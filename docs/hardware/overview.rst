@@ -8,7 +8,7 @@ Hardware Overview
 R5.x
 ****
 
-Tinymovr R5.x is the latest Tinymovr revision. It features increased connectivity in a reduced footprint.
+Tinymovr R5.x is the high-current Tinymovr series. It features increased connectivity in a reduced footprint.
 
 Board Dimensions (R5.0, R5.1)
 #############################
@@ -87,3 +87,15 @@ Connectivity (R3.x)
 .. image:: connectors.png
   :width: 800
   :alt: Tinymovr R3.x connectors and pinouts
+
+
+X5.1
+****
+
+X5.1 uses M5.1 electricals and includes a geared second encoder onboard,
+connected through the interface identified as ``EXTERNAL_SPI`` in the API.
+It defaults to :ref:`differential-positioning`. Other supported board revisions
+default to ``STANDARD`` transform initialization.
+
+Use the dedicated ``X51`` firmware files from the 3.2.0 release, even though
+the board shares M5.1 electricals.
